@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#23384c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Контролер">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Контролер</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: practical shop-floor tool, calm, big targets for working hands
+   IDEA: the floor plan pinned on the workshop wall, racks where they really stand
+   PICTURE: the hall plan with sector A and B aisles, racks tinted by sector, problem dots
+   COLOUR and TYPE: steel blue band, signal orange actions, sector blue / sector teal, red/yellow/green states; IBM Plex Sans + Condensed
+   LAYOUT: one phone column, sticky header, bottom tab bar, bottom sheets for rack, box and forms */
+:root{color-scheme:light dark;--bg:light-dark(#eceff2,#0f1215);--card:light-dark(#fff,#191d21);--ink:light-dark(#15191d,#e8ebee);--mut:light-dark(#5a636d,#98a2ac);--line:light-dark(#d8dce1,#2a3036);--soft:light-dark(#f2f4f6,#21262b);--steel:light-dark(#23384c,#1b2b3a);--acc:#e3602a;--red:#d02f2e;--yel:#e8a700;--grn:#2e9654;--sA:#2f6bd0;--sB:#0f8a87;--sAt:light-dark(#dfe9fb,#1b2a45);--sBt:light-dark(#d9f1ef,#123532)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans",system-ui,sans-serif;overflow-x:clip}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;background:var(--steel);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;gap:12px;min-height:60px}
+.top b{font:700 19px/1.1 "IBM Plex Sans Condensed",sans-serif}
+.top small{display:block;opacity:.7;font-size:13px}
+.chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:22px;padding:6px 14px;min-height:44px;text-align:right;color:#fff}
+.chip span{display:block;font-weight:600;line-height:1.1}.chip small{font-size:12px}
+.chip[hidden]{display:none}
+main{max-width:600px;margin:0 auto;padding:14px 14px calc(96px + env(safe-area-inset-bottom))}
+.demo{font-size:13px;color:var(--mut);margin:0 0 12px}
+h1{font:700 30px/1.08 "IBM Plex Sans Condensed",sans-serif;margin:2px 0 12px}
+h2{font-size:18px;margin:22px 0 10px}
+h3{font-size:15px;margin:18px 0 8px;color:var(--mut)}
+.card h2{margin-top:0}
+.hero{background:var(--steel);color:#fff;border-radius:16px;padding:18px;margin-bottom:14px}
+.hero h1{color:#fff;margin-bottom:6px}
+.hero p{margin:0 0 14px;opacity:.85;font-size:15px}
+.hl{font-size:14px;opacity:.8}
+.hero .row .btn{flex:1}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stats.four{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stats.four b{font-size:clamp(20px,6vw,28px);white-space:normal}
+.stats div{background:rgba(255,255,255,.1);border-radius:10px;padding:10px}
+.stats b{display:block;font:700 28px/1 "IBM Plex Sans Condensed",sans-serif;white-space:nowrap}
+.stats span{font-size:13px;opacity:.85}
+.card .stats div{background:var(--soft)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.card.sm{padding:10px 14px;font-size:14px}
+.card p{margin:6px 0}
+.card.inv{border:2px solid var(--acc)}
+.alert{display:block;width:100%;text-align:left;background:var(--acc);color:#fff;border:0;border-radius:12px;padding:14px;font-weight:600;margin-bottom:12px}
+.alert.red{background:var(--red)}
+.row input,label input,select,textarea{width:100%;min-height:48px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px 12px;font-size:16px}
+textarea{resize:vertical}
+.btn{flex:none;min-height:48px;border:0;border-radius:10px;background:var(--acc);color:#fff;font-weight:600;padding:0 18px}
+.btn.sec{background:var(--steel)}.btn.warn{background:var(--red)}
+.hero .btn.sec{background:rgba(255,255,255,.16)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.wide{width:100%;margin-top:14px}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.row input{flex:1 1 120px;width:auto}.row .btn{flex:1 1 auto}
+label{display:block;font-size:14px;color:var(--mut);margin-top:12px}
+label textarea,label select,label input{margin-top:4px;color:var(--ink)}
+.empty,.mut{color:var(--mut);font-size:14px}
+.pi{display:flex;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px}
+.pi p{margin:2px 0}.pi small{color:var(--mut);font-size:13px}
+.dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:6px;display:inline-block}
+.s-red .dot{background:var(--red)}.s-yellow .dot{background:var(--yel)}.s-green .dot{background:var(--grn)}
+.pi.s-red{border-left:5px solid var(--red)}.pi.s-yellow{border-left:5px solid var(--yel)}
+.seg{display:flex;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px;margin:6px 0 12px}
+.seg button{flex:1;min-height:42px;border:0;border-radius:9px;background:transparent;font-weight:600}
+.seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--mut);margin-bottom:12px}
+.legend span{display:flex;align-items:center;gap:5px}
+.lg{width:14px;height:14px;border-radius:4px;display:inline-block}
+.plan{position:relative;width:100%;max-width:440px;margin:0 auto 10px;aspect-ratio:735/1340;container-type:inline-size}
+.aisle{position:absolute;border-radius:8px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);font:700 clamp(12px,4cqw,18px) "IBM Plex Sans Condensed",sans-serif;opacity:.9}
+.aisle.A{background:var(--sAt);color:var(--sA)}.aisle.B{background:var(--sBt);color:var(--sB)}
+.rk{position:absolute;padding:0;border-radius:5px;border:2px solid;display:flex;align-items:center;justify-content:center;font:700 clamp(12px,4.2cqw,20px) "IBM Plex Sans Condensed",sans-serif;background:var(--card)}
+.rk.A{border-color:var(--sA);color:var(--sA)}.rk.B{border-color:var(--sB);color:var(--sB)}
+.rk.dim{opacity:.32}
+.rk i{position:absolute;top:3px;right:3px;width:9px;height:9px;border-radius:50%}
+.rk.red i{background:var(--red)}.rk.yellow i{background:var(--yel)}
+.rk.red{background:light-dark(#fde5e4,#3a1817)}
+.boxes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.flr{grid-column:span 2;font-size:13px;color:var(--mut);margin-top:4px}
+.box{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px;min-height:104px}
+.box .bn{font:700 26px/1 "IBM Plex Sans Condensed",sans-serif}
+.box .ba{font-weight:600;font-size:14px}
+.box small{color:var(--mut);font-size:12.5px;line-height:1.35}
+.box.red{border-color:var(--red);box-shadow:inset 4px 0 0 var(--red)}.box.yellow{border-color:var(--yel);box-shadow:inset 4px 0 0 var(--yel)}
+.pill{font-size:12px;font-weight:600;border-radius:6px;padding:1px 6px;margin-top:3px}
+.pill.red{background:var(--red);color:#fff}.pill.yellow{background:var(--yel);color:#1a1400}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav:empty{display:none}
+nav button{flex:1;max-width:120px;border:0;background:none;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--mut);position:relative;min-height:58px}
+nav button.on{color:var(--acc);font-weight:600}
+nav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+nav i{position:absolute;top:4px;left:calc(50% + 6px);background:var(--red);color:#fff;font-style:normal;font-size:11px;font-weight:700;border-radius:9px;min-width:18px;padding:0 5px;line-height:18px}
+.ov{position:fixed;inset:0;z-index:10;background:rgba(10,14,18,.55);display:flex;align-items:flex-end;justify-content:center}
+.ov[hidden]{display:none}
+.sheet{background:var(--bg);width:100%;max-width:600px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:12px 16px calc(24px + env(safe-area-inset-bottom));animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+@media(prefers-reduced-motion:reduce){.sheet{animation:none}}
+.sbar{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px}
+.back{border:0;background:none;color:var(--acc);font-weight:600;min-height:44px;padding:0 4px}
+.sh-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.sh-h h2{margin:0;font:700 26px/1.1 "IBM Plex Sans Condensed",sans-serif}
+.sh-h small{color:var(--mut);font-size:14px}
+.x{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--soft);font-size:22px;line-height:1;margin-left:auto}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.step{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;gap:6px;margin-top:4px}
+.step button{min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:22px}
+.step input{min-height:48px;text-align:center;font-size:20px;font-weight:600;border:1px solid var(--line);border-radius:10px;background:var(--card);width:100%}
+.sr{display:grid;grid-template-columns:minmax(0,1fr) 190px;align-items:center;gap:10px;margin-bottom:6px}
+.stc{display:grid;gap:6px;margin-top:12px}
+.opt{display:flex;align-items:center;gap:10px;margin:0;padding:12px;border:1.5px solid var(--line);border-radius:10px;color:var(--ink);background:var(--card);font-size:15px}
+.opt input{width:22px;height:22px;min-height:0;margin:0;flex:none;accent-color:var(--acc)}
+.opt:has(input:checked){border-color:var(--acc)}
+.opt small{color:var(--mut);margin-left:auto;text-align:right}
+.sopt.s-red:has(input:checked){border-color:var(--red)}.sopt.s-yellow:has(input:checked){border-color:var(--yel)}.sopt.s-green:has(input:checked){border-color:var(--grn)}
+.sopt::after{content:"";width:12px;height:12px;border-radius:50%;margin-left:auto;flex:none}
+.sopt.s-red::after{background:var(--red)}.sopt.s-yellow::after{background:var(--yel)}.sopt.s-green::after{background:var(--grn)}
+.hist{border-left:2px solid var(--line);margin:10px 0 4px 6px;padding-left:12px}
+.he{margin-bottom:10px}.he small{color:var(--mut)}.he p{margin:2px 0}.fix{color:var(--grn)}
+.rem{color:var(--red);font-size:14px;margin-top:6px}
+.q{font-style:italic}
+.ol{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tag{font-size:13px;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:3px 8px;background:var(--soft)}
+.tag.s-red{border-color:var(--red);color:var(--red)}.tag.s-yellow{border-color:var(--yel)}
+.li{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:6px;min-height:48px}
+.li span{color:var(--mut);font-size:14px;text-align:right}
+.stock{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.stock b{font:700 44px/1 "IBM Plex Sans Condensed",sans-serif}
+.stock.low b,.stock.low span{color:var(--red)}
+.bar{display:grid;grid-template-columns:8.5em minmax(0,1fr) 3.2em;gap:8px;align-items:center;font-size:14px;margin-bottom:6px}
+.bar div{background:var(--soft);border-radius:4px;height:14px}.bar i{display:block;height:100%;background:var(--acc);border-radius:4px}
+.bar b{text-align:right}
+.days{display:flex;align-items:flex-end;gap:2px;height:150px;border-bottom:1px solid var(--line);margin-top:8px}
+.days div{flex:1;display:flex;flex-direction:column-reverse;height:100%;position:relative}
+.days i{display:block;background:var(--steel);border-radius:2px 2px 0 0}
+.days i.d{background:var(--red);border-radius:0}
+.dl{display:flex;gap:2px;font-size:11px;color:var(--mut)}.dl span{flex:1;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;color:var(--mut);font-weight:500;border-bottom:1px solid var(--line);padding:6px 4px}
+td{border-bottom:1px solid var(--line);padding:8px 4px}
+td.n,th.n{text-align:right;white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:10px;font-weight:500;z-index:20;width:max-content;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+.chips{display:flex;gap:6px;overflow-x:auto;margin:6px 0 14px;padding-bottom:4px;scrollbar-width:none}
+.chips button{flex:none;min-height:40px;border:1.5px solid var(--line);background:var(--card);border-radius:20px;padding:0 14px;font-weight:600;font-size:14px;white-space:nowrap}
+.chips button.on{background:var(--steel);border-color:var(--steel);color:#fff}
+.chips i{font-style:normal;background:var(--red);color:#fff;border-radius:9px;padding:0 6px;font-size:12px;margin-left:4px}
+.goal .gh{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:14px}.goal .gh span{color:var(--mut)}
+.gbar{height:16px;background:var(--soft);border-radius:8px;margin:10px 0 8px;overflow:hidden}.gbar i{display:block;height:100%;background:var(--grn);border-radius:8px}
+.big{font:700 34px/1 "IBM Plex Sans Condensed",sans-serif}
+.je{border-bottom:1px solid var(--line);padding:10px 0}.je:last-child{border:0}
+.je p{margin:2px 0;font-size:15px}.je small{color:var(--mut)}
+.jc{font-size:11.5px;font-weight:700;border-radius:5px;padding:1px 6px;margin-left:6px;color:#fff;background:var(--mut)}
+.c-shift{background:var(--steel)}.c-prob{background:var(--red)}.c-store{background:var(--sB)}.c-people{background:var(--sA)}.c-light{background:var(--yel);color:#1a1400}.c-admin{background:var(--acc)}
+.jd{font-weight:700;margin:14px 0 2px;font-size:14px}
+.task{border-left:5px solid var(--acc)}
+.mrow{margin-top:6px}.mrow input{flex:1 1 140px}
+.login{max-width:420px;margin:0 auto}
+.kp .okk{background:var(--acc);color:#fff;border-color:var(--acc);font-size:18px}
+body.busy::after{content:"";position:fixed;left:0;right:0;top:0;height:3px;background:var(--acc);z-index:30;animation:ld 1s linear infinite}
+@keyframes ld{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+body.busy form button,body.busy [data-acc],body.busy [data-fil]{pointer-events:none;opacity:.6}
+.ul{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.uname{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;min-height:56px;font-weight:600}
+.uname small{display:block;font-weight:400;color:var(--mut);font-size:12.5px}
+.uname.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+.pin{text-align:center;margin-top:18px}
+.dots{display:flex;justify-content:center;gap:14px;margin:10px 0}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--mut)}
+.dots i.f{background:var(--ink);border-color:var(--ink)}
+.dots.err i{border-color:var(--red)}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:12px auto}
+.kp button{min-height:60px;border-radius:14px;border:1px solid var(--line);background:var(--card);font-size:24px;font-weight:600}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mut)}.stack td:empty{display:none}}
+@media(max-width:380px){.sr{grid-template-columns:1fr}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<header class="top"><div><b>Контролер</b><small>Сектори A і B · 216 апаратів</small></div><button class="chip" id="who" aria-label="Меню" hidden></button></header>
+<main id="main"></main>
+<nav id="nav"></nav>
+<div class="ov" id="ov" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+let st=0;const calcSt=()=>{const d=new Date();d.setHours(8,0,0,0);if(+d>Date.now())d.setDate(d.getDate()-1);st=+d};calcSt();
+const DAY=864e5;
+const hm=t=>{const d=new Date(t);return pad(d.getHours())+':'+pad(d.getMinutes())};
+const dt=t=>{const d=new Date(t);return pad(d.getDate())+'.'+pad(d.getMonth()+1)+' '+hm(t)};
+const dur=ms=>{const m=Math.round(ms/6e4);return `${Math.floor(m/60)} год ${pad(m%60)} хв`};
+const hrs=ms=>(ms/36e5).toFixed(0)+' год';
+const RN={worker:'Працівник',admin:'Адміністратор',view:'Перегляд'};
+const u=id=>U.find(x=>x.id===id)||PEOPLE.find(x=>x.id===id)||{id,name:'—',role:''};const fn=id=>u(id).name.split(' ')[0];
+const SL={red:'Не працює',yellow:'Працює з проблемою',green:'Вирішено'};
+const TY={A:'Модель A',P:'Модель P'};
+const REASONS=[['mach','Проблема станка'],['fail','Збій в роботі'],['err','Помилка']];
+const FLOOR={1:'1-й поверх',3:'2-й поверх',5:'3-й поверх'};
+const POS=p=>`${['','1','1','2','2','3','3'][p]}-й поверх, ${p%2?'ліворуч':'праворуч'}`;
+
+/* floor plan in units of the paper sketch */
+const PLAN=[];const pl=(s,n,x,y,w,h)=>PLAN.push({s,n,x,y,w,h});
+pl('A',3,310,5,135,65);pl('A',1,445,5,135,65);pl('A',2,375,132,140,68);
+[4,6,8,10,12,14,16].forEach((n,i)=>pl('A',n,175,65+138*i,70,138));
+[5,7,9,11,13,15].forEach((n,i)=>pl('A',n,375,200+138*i,70,138));
+pl('A',17,5,1035,75,152);pl('A',18,5,1187,75,152);
+pl('B',1,650,77,75,131);
+[3,5,7,9,11,13].forEach((n,i)=>pl('B',n,650,270+140*i,75,140));
+[2,4,6,8,10,12].forEach((n,i)=>pl('B',n,445,200+138*i,70,138));
+pl('B',14,370,1035,140,75);
+[18,17,16,15].forEach((n,i)=>pl('B',n,150+145*i,1260,145,75));
+const AISLE=[['A',247,72,126,960],['B',517,72,131,1040]];
+
+/* ---------- server connection ---------- */
+const CFG={url:'https://gppzatgxtjqwuybbandj.supabase.co',key:'sb_publishable_e5Jut3FA4cOpol2Z8tNOlg__Ez0uN6c'};
+let TOKEN=null;try{TOKEN=localStorage.getItem('kt_token')}catch(e){}
+const saveTok=t=>{TOKEN=t;try{t?localStorage.setItem('kt_token',t):localStorage.removeItem('kt_token')}catch(e){}};
+const rpc=async(fn,args={})=>{let r;try{r=await fetch(CFG.url.replace(/\/$/,'')+'/rest/v1/rpc/'+fn,{method:'POST',headers:Object.assign({'Content-Type':'application/json',apikey:CFG.key},CFG.key.startsWith('eyJ')?{Authorization:'Bearer '+CFG.key}:{}),body:JSON.stringify(args)})}catch(e){throw new Error('Немає зв\'язку з сервером. Перевірте інтернет')}
+ const txt=await r.text();let j=null;try{j=txt?JSON.parse(txt):null}catch(e){}
+ if(!r.ok){const msg=(j&&j.message)||('Помилка сервера '+r.status);if(msg==='AUTH'){saveTok(null);me=null;render();throw new Error('Сесія завершилась, увійдіть знову')}throw new Error(msg)}return j};
+let busyN=0;const busy=on=>{busyN+=on?1:-1;document.body.classList.toggle('busy',busyN>0)};
+const api=async(fn,args={},okMsg)=>{busy(true);try{await rpc(fn,{p_token:TOKEN,...args});await load();if(okMsg)toast(okMsg);return true}catch(e){toast(e.message);return false}finally{busy(false)}};
+
+/* ---------- live data ---------- */
+let U=[],SH=[],R=[],P=[],FL={stock:0,min:10,log:[],inc:[]},SHIP=[],ADJ=[],TASK=[],REQ=[],OUT=[],GOALS=[],NOTIF=[],APLOG=[],DECL=[];
+let AP={},parts=[],MID={},MNAME={},STOCK={},SET={},FLAST={},PEOPLE=[],SEC={A:{holder:'admin',shift:null,pend:null},B:{holder:'admin',shift:null,pend:null}},MINREQ=null,loaded=false;
+const lastPart={};
+const T=s=>s?+new Date(s):null;
+const dayMs=s=>s?+new Date(s+'T08:00'):null;
+const hydrate=D=>{
+ me=D.me.id;SET=D.settings||{};
+ parts=D.models.map(m=>m.name);MID={};MNAME={};D.models.forEach(m=>{MID[m.name]=m.id;MNAME[m.id]=m.name});
+ STOCK={};(D.stock||[]).forEach(x=>{STOCK[MNAME[x.model_id]]={g:x.g,d:x.d}});
+ if(D.me.role==='view'){U=[{id:D.me.id,name:D.me.name,role:'view'}];loaded=true;return}
+ U=D.people.map(x=>({id:x.id,name:x.name,role:x.role,grp:x.grp,active:x.active}));U.push({id:'admin',name:'Адміністратор',role:'admin',active:false});
+ AP={};D.machines.forEach(a=>AP[a[0]]={name:a[1],type:a[2]});
+ SH=D.shifts.map(x=>({id:x.id,s:x.sector,w:x.worker,start:T(x.start_at),end:T(x.end_at),from:x.from_person||'admin',note:x.note||'',rem:'',assigned:x.assigned_by}));
+ SEC={};D.sectors.forEach(s=>SEC[s.id]={holder:s.holder||'admin',shift:s.shift_id,pend:s.pend_to?{from:s.pend_from,to:s.pend_to,note:s.pend_note||'',t:T(s.pend_t)}:null,notice:''});
+ R=D.removals.map(a=>({m:a[0],part:MNAME[a[1]],qty:a[2],d:{mach:a[3],fail:a[4],err:a[5]},w:a[6],t:T(a[7])}));
+ for(const k in lastPart)delete lastPart[k];R.forEach(x=>lastPart[x.m]=x.part);
+ P=D.problems.map(p=>({id:p.id,m:p.m,status:p.status,h:(p.h||[]).map(e=>({t:T(e.t),w:e.w,text:e.text||'',fix:e.fix||'',status:e.status}))}));
+ FL={stock:D.fil_stock,min:+(SET.fil_min??10),log:D.fil_changes.map(a=>({m:a[0],w:a[1],t:T(a[2])})),inc:D.fil_incoming.map(x=>({n:x.n,note:x.note,t:T(x.t),w:x.by}))};
+ FLAST={};for(const k in D.fil_last)FLAST[k]=T(D.fil_last[k]);
+ SHIP=D.shipments.map(x=>({id:x.id,part:MNAME[x.model_id],kind:x.kind,qty:x.qty,note:x.note,w:x.by,t:T(x.t),status:'done',by:x.by,tb:T(x.t)}));
+ ADJ=D.adjust.map(x=>({id:x.id,part:MNAME[x.model_id],kind:x.kind,qty:x.qty,note:x.note,w:x.by,t:T(x.t)}));
+ TASK=D.tasks.map(x=>({id:x.id,to:x.to_person||'all',text:x.text,by:x.by,t:T(x.t),due:dayMs(x.due),done:T(x.done_at),doneBy:x.done_by,seen:x.seen}));
+ REQ=D.swaps.map(x=>({id:x.id,type:x.type,w:x.requester,sub:x.colleague,date:dayMs(x.date1),date2:dayMs(x.date2),note:x.note,status:x.status,t:T(x.t),tc:T(x.tc)}));
+ OUT=D.outages.map(x=>({id:x.id,from:T(x.from_at),to:T(x.to_at),w:x.by}));
+ GOALS=D.goals.map(g=>({id:g.id,part:g.model_id?MNAME[g.model_id]:'*',qty:g.qty,from:+new Date(g.from+'T00:00'),until:+new Date(g.until+'T00:00'),t:T(g.t),by:g.by,done:+g.done}));
+ NOTIF=D.notifications.map(x=>({id:x.id,t:T(x.t),txt:x.txt,rq:x.swap_id,read:x.read}));
+ APLOG=D.machine_log.map(x=>({t:T(x.t),w:x.by,id:x.machine,name:x.name,type:x.model}));
+ MINREQ=D.min_req_date?+new Date(D.min_req_date+'T00:00'):null;
+ loaded=true};
+const load=async()=>{if(!TOKEN){me=null;render();return}const D=await rpc('get_data',{p_token:TOKEN});calcSt();hydrate(D);cacheV={};cacheW={};render()};
+const loadPeople=async()=>{try{PEOPLE=await rpc('list_people')||[]}catch(e){PEOPLE=[];toast(e.message)}render()};
+const stk=p=>{const x=STOCK[p]||{g:0,d:0};return{g:x.g,d:x.d,rg:0,rd:0,fg:x.g,fd:x.d}};
+const pendShip=()=>[];
+const SHL={done:'Відвантажено'};
+const anchorMs=()=>SET.rotation_anchor?+new Date(SET.rotation_anchor+'T00:00'):null;
+const grpOf=ms=>{const a=anchorMs();if(a==null)return 0;const d=new Date(ms);const days=Math.round((+new Date(d.getFullYear(),d.getMonth(),d.getDate())-a)/DAY);return((days%3)+3)%3+1};
+let cacheV={},cacheW={};
+
+const dd=t=>new Date(t).toLocaleDateString('uk-UA',{weekday:'short',day:'2-digit',month:'2-digit'});
+const dd2=t=>{const d=new Date(t);return pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear()};
+const fmt=n=>Number(n).toLocaleString('uk-UA');
+const dl=t=>{const d=new Date(t);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes())};
+const dIn=t=>{const d=new Date(t);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const RQL={colleague:'Чекає згоди колеги',pending:'Чекає адміністратора',approved:'Погоджено',agreed:'Домовлено',rejected:'Відхилено',declined:'Відмова колеги'};
+let ctlS='journal',jF='all',jN=60;
+let rk='plan';let me=null,lsel=null,pin='',pinErr=false,tab='home',plF='all',repF='open',stP='shift',stSel=null;
+const ME=()=>u(me);const isAdm=()=>ME().role==='admin';const isW=()=>ME().role==='worker';
+const isOpen=p=>p.status!=='green';
+const openCnt=()=>P.filter(isOpen).length;
+const mySecs=()=>['A','B'].filter(s=>SEC[s].holder===me);
+const canProd=s=>SEC[s].holder===me&&!SEC[s].pend&&isW();
+const pendToMe=()=>['A','B'].filter(s=>SEC[s].pend&&SEC[s].pend.to===me);
+const curSh=s=>SH.find(x=>x.id===SEC[s].shift);
+const mst=m=>{const o=P.filter(p=>p.m===m&&isOpen(p));return o.some(p=>p.status==='red')?'red':o.length?'yellow':''};
+const rst=(s,n)=>{let r='';for(let p=1;p<=6;p++){const x=mst(`${s}-${pad(n)}-${p}`);if(x==='red')return 'red';if(x)r='yellow'}return r};
+const sumD=d=>d.mach+d.fail+d.err;
+const agg=rs=>{let q=0;const d={mach:0,fail:0,err:0};rs.forEach(x=>{q+=x.qty;for(const k in d)d[k]+=x.d[k]});return{q,d,td:sumD(d),n:rs.length}};
+const pct=(d,q)=>q+d?(d/(q+d)*100).toFixed(1)+'%':'0%';
+const shRecs=sh=>R.filter(x=>x.m[0]===sh.s&&x.t>=sh.start&&x.t<(sh.end||Infinity));
+const shStats=sh=>{const a=agg(shRecs(sh));const f=FL.log.filter(x=>x.m[0]===sh.s&&x.t>=sh.start&&x.t<(sh.end||Infinity)).length;return `<div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div><b>${a.q}</b><span>виробів</span></div><div><b>${a.td}</b><span>брак · ${pct(a.td,a.q)}</span></div></div><p style="font-size:13px;opacity:.75;margin:8px 0 0">Заміна філаменту: ${f}</p>`};
+const lastFil=m=>{const l=FL.log.filter(x=>x.m===m);return l.length?l[l.length-1]:FLAST[m]?{t:FLAST[m]}:null};
+const pItem=p=>{const l=p.h[p.h.length-1];return `<button class="pi s-${p.status}" data-p="${p.id}"><span class="dot"></span><span><b>${p.m}</b> · ${esc(AP[p.m].name)}<p>${esc(p.h.find(e=>e.text)?.text)}</p>${l.fix?`<p class="fix">${esc(l.fix)}</p>`:''}<small>${SL[p.status]} · ${dt(l.t)} · ${esc(fn(l.w))}</small></span></button>`};
+const openList=s=>{const l=P.filter(p=>isOpen(p)&&p.m[0]===s);return `<h3>Відкриті проблеми в секторі ${s}</h3><div class="ol">${l.map(p=>`<span class="tag s-${p.status}">${p.m}</span>`).join('')||'<span class="mut">немає</span>'}</div>`};
+const ICO={home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',prod:'<path d="M4 20V10l5 3V10l5 3V6l6 3v11z"/><path d="M4 20h16"/>',racks:'<rect x="4" y="3" width="7" height="18" rx="1"/><rect x="13" y="3" width="7" height="18" rx="1"/><path d="M4 9h7M4 15h7M13 9h7M13 15h7"/>',rep:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8V21h3.2l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',store:'<path d="M3 9l9-5 9 5v11H3z"/><path d="M7 20v-7h10v7M7 16h10"/>',ctl:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',stat:'<path d="M4 20h16M7 16v-5M12 16V7M17 16v-8"/>'};
+const ico=k=>`<svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>`;
+const tabs=()=>[['home','Головна'],...(isW()?[['prod','Виробництво']]:[]),['racks','Стелажі'],['store','Склад'],['stat','Статистика'],...(isAdm()?[['ctl','Керування']]:[])];
+const DEMO='';const _oldDemo='<p class="demo">Прототип з тестовими даними. Після оновлення сторінки все повертається до початкового стану.</p>';
+
+const plan=mode=>`<div class="plan">${AISLE.map(([s,x,y,w,h])=>`<div class="aisle ${s}" style="left:${x/7.35}%;top:${y/13.4}%;width:${w/7.35}%;height:${h/13.4}%">Сектор ${s}</div>`).join('')}${PLAN.map(r=>{const dim=mode==='prod'?!canProd(r.s):plF!=='all'&&plF!==r.s;return `<button class="rk ${r.s} ${rst(r.s,r.n)} ${dim?'dim':''}" data-rack="${r.s}-${pad(r.n)}" style="left:${r.x/7.35}%;top:${r.y/13.4}%;width:${r.w/7.35}%;height:${r.h/13.4}%" aria-label="Стелаж ${r.s}-${pad(r.n)}">${r.n}<i></i></button>`}).join('')}</div>`;
+const legend=`<div class="legend"><span><i class="lg" style="background:var(--sA)"></i>Сектор A</span><span><i class="lg" style="background:var(--sB)"></i>Сектор B</span><span><i class="lg" style="background:var(--red)"></i>є апарат, що не працює</span><span><i class="lg" style="background:var(--yel)"></i>з проблемою</span></div>`;
+
+const V={
+login(){const s=lsel&&PEOPLE.find(x=>x.id===lsel);return `<div class="login"><h1>Вхід</h1><p class="mut">Виберіть своє ім'я та введіть PIN.</p><div class="ul">${PEOPLE.map(x=>`<button class="uname ${lsel===x.id?'on':''}" data-lu="${x.id}">${esc(x.name)}<small>${RN[x.role]}</small></button>`).join('')||'<p class="empty">Завантаження…</p>'}</div>
+ ${s?`<div class="pin" id="pinbox"><p>PIN для <b>${esc(s.name)}</b></p><div class="dots ${pinErr?'err':''}">${Array.from({length:Math.max(4,pin.length)},(_,i)=>`<i class="${pin.length>i?'f':''}"></i>`).join('')}</div>${pinErr?`<p class="rem">${esc(pinErr)}</p>`:''}<div class="kp">${['1','2','3','4','5','6','7','8','9','del','0','ok'].map(k=>`<button data-k="${k}" ${k==='ok'?'class="okk"':''} aria-label="${k==='del'?'Стерти':k==='ok'?'Увійти':k}">${k==='del'?'←':k==='ok'?'Увійти':k}</button>`).join('')}</div></div>`:''}</div>`},
+home(){const m=ME();let h=DEMO,ph='';
+ pendToMe().forEach(s=>{const pd=SEC[s].pend,sh=curSh(s);h+=`<section class="card inv"><h2>Прийняти зміну · Сектор ${s}</h2><p><b>${esc(u(pd.from).name)}</b> передає вам сектор (${hm(pd.t)}).</p>${sh?`<h3>Підсумок зміни з ${dt(sh.start)}</h3>${shStats(sh)}`:''}<h3>Новини та проблеми</h3><p class="q">${esc(pd.note)||'Без коментаря'}</p>${openList(s)}
+  <div class="stc"><label class="opt"><input type="checkbox" id="ci1">Робоче місце в прибраному стані</label><label class="opt"><input type="checkbox" id="ci2">З новинами та проблемами ознайомлений</label></div>
+  <p class="mut">Підтверджуючи, ви берете відповідальність за стан сектора. Якщо щось не так, не приймайте зміну, доки колега не виправить.</p>
+  <button class="btn wide" data-acc="${s}">Прийняти зміну</button></section>`});
+ mySecs().forEach(s=>{if(SEC[s].notice)h+=`<div class="alert red">${esc(SEC[s].notice)}</div>`});
+ if(isW()){const ss=mySecs();
+  if(!ss.length&&!pendToMe().length)h+=`<section class="hero"><div class="hl">${esc(m.name)}</div><h1>Ви не на зміні</h1><p>Щоб заступити, колега або адміністратор має передати вам сектор. Тут з'явиться запит, який треба підтвердити.</p></section>`;
+  ss.forEach(s=>{const sh=curSh(s),pd=SEC[s].pend;h+=`<section class="hero"><div class="hl">Сектор ${s} · ${pd?'зміну здано':'на зміні'}</div><h1>${pd?'Чекає підтвердження':'Зміна з '+hm(sh.start)}</h1><p>${pd?`${esc(u(pd.to).name)} має прийняти зміну.`:`Прийнято ${dt(sh.start)} · попередня зміна: ${esc(u(sh.from).name)}. Минуло ${dur(Date.now()-sh.start)}.`}</p>${shStats(sh)}<div class="row">${pd?`<button class="btn sec" data-cancel="${s}">Скасувати передачу</button>`:`<button class="btn" data-tab="prod">Виробництво</button><button class="btn sec" data-hand="${s}">Здати зміну</button>`}</div></section>`;
+   const prev=SH.filter(x=>x.s===s&&x.end&&x.end<=sh.start).pop();if(prev&&!pd)ph+=`<h2>Від попередньої зміни</h2><div class="card"><b>${esc(u(prev.w).name)}</b><p>${esc(prev.note)||'Без коментаря'}</p>${sh.rem?`<div class="rem">Ваше зауваження при прийманні: ${esc(sh.rem)}</div>`:''}</div>`});
+ }else{h+=`<section class="hero"><div class="hl">${RN[m.role]}</div><h1>Цех зараз</h1><p>${openCnt()} відкритих проблем · філаменту на складі: ${FL.stock}</p></section>`;if(isAdm())h+=notifCard();
+  if(isAdm()&&TASK.some(x=>x.done&&!x.seen))h+=`<button class="alert" style="background:var(--grn)" data-ctlgo="tasks">Працівники виконали завдання →</button>`;
+  if(isAdm()&&pendShip().length)h+=`<button class="alert" data-tab="store">${pendShip().length} відвантаження чекає підтвердження →</button>`;
+  if(isAdm()&&FL.stock<=FL.min)h+=`<button class="alert" data-tab="store">На складі лише ${FL.stock} котушок філаменту →</button>`;
+  h+=['A','B'].map(secCard).join('')}
+ h+=homeExtra()+ph;
+ const open=P.filter(p=>isOpen(p)&&(!isW()||mySecs().includes(p.m[0])));
+ if(isW()&&!mySecs().length)return h;
+ h+=`<h2>Проблемні апарати${isW()?' у вашому секторі':''}</h2>`+(open.length?open.map(pItem).join(''):'<p class="empty">Усі апарати працюють</p>');
+ return h},
+prod(){const ss=mySecs().filter(canProd);let h=`<h1>Виробництво</h1>`;
+ h+=ss.length?`<p class="mut">Сектор ${ss.join(', ')}. Натисніть на стелаж, потім на апарат, і запишіть зняті вироби.</p>`:`<div class="alert red">Ви не на зміні. Спершу прийміть зміну, тоді можна записувати вироби.</div>`;
+ return h+plan('prod')+legend},
+racks(){return `<h1>Стелажі</h1><div class="seg"><button data-rk="plan" class="${rk==='plan'?'on':''}">План</button><button data-rk="rep" class="${rk==='rep'?'on':''}">Ремонт (${openCnt()})</button></div>`+(rk==='rep'?V.rep():`<div class="seg">${[['all','Усі'],['A','Сектор A'],['B','Сектор B']].map(([k,l])=>`<button data-plf="${k}" class="${plF===k?'on':''}">${l}</button>`).join('')}</div>${plan('view')}${legend}<p class="mut">Натисніть на стелаж, щоб побачити 6 скриньок: який апарат стоїть, коли міняли філамент, проблеми та як їх вирішили.</p>`)},
+rep(){const open=P.filter(isOpen).sort((a,b)=>(a.status==='red'?0:1)-(b.status==='red'?0:1));const list=repF==='open'?open:P.filter(p=>!isOpen(p));
+ return `<div class="seg"><button data-rf="open" class="${repF==='open'?'on':''}">Чек-лист (${open.length})</button><button data-rf="done" class="${repF==='done'?'on':''}">Вирішені</button></div>
+ ${repF==='open'?'<p class="mut">Усе, що не працює або працює з проблемою. Натисніть, щоб записати, що зроблено, або закрити.</p>':''}
+ ${['A','B'].map(s=>{const l=list.filter(p=>p.m[0]===s);return `<h2>Сектор ${s}</h2>`+(l.length?l.map(pItem).join(''):'<p class="empty">Немає</p>')}).join('')}`},
+store(){const pend=pendShip();const tot=parts.reduce((a,p)=>{const x=stk(p);a.g+=x.g;a.d+=x.d;return a},{g:0,d:0});let h='<h1>Склад</h1>';
+ if(isAdm()&&pend.length)h+=`<div class="alert">${pend.length} відвантаження чекає вашого підтвердження ↓</div>`;
+ h+=`<section class="hero"><div class="hl">Зараз на складі</div><div class="stats" style="margin-top:8px"><div><b>${tot.g}</b><span>придатних деталей</span></div><div><b>${tot.d}</b><span>браку</span></div><div><b>${FL.stock}</b><span>котушок філаменту</span></div></div></section>
+${GOALS.map(goalCard).join('')}
+ <section class="card"><h2>Деталі</h2>${isAdm()?'<button class="btn ghost wide" style="margin-top:0;margin-bottom:8px" data-adjnew="1">Інвентаризація / початковий залишок</button>':''}<table><thead><tr><th>Деталь</th><th class="n">Придатні</th><th class="n">Брак</th></tr></thead><tbody>${parts.map(p=>{const x=stk(p);return `<tr><td>${esc(p)}</td><td class="n">${x.g}</td><td class="n">${x.d}</td></tr>`}).join('')}</tbody></table><p class="mut">Придатні й брак додаються автоматично при знятті з апаратів і списуються, коли адміністратор записує відвантаження.</p></section>
+ <section class="card"><h2>Відвантаження</h2>${isAdm()?'<button class="btn wide" style="margin-top:0" data-shnew="1">Відвантажити</button>':'<p class="mut" style="margin-top:0">Відвантаження записує адміністратор, і кількість одразу списується зі складу.</p>'}<h3>Історія</h3>${SHIP.slice(-10).reverse().map(shItem).join('')}</section>
+ <section class="card"><h2>Філамент</h2><div class="stock ${FL.stock<=FL.min?'low':''}"><b>${FL.stock}</b><span>котушок · мінімум ${FL.min}</span></div><p class="mut">Котушка списується автоматично, коли на апараті натискають «Замінив філамент».</p>${isAdm()?`<div class="row"><input id="stn" type="number" value="20" aria-label="Кількість котушок"><button class="btn" id="addst">+ Поповнити</button></div><p class="mut">Щоб списати (напр., після перерахунку), введіть число з мінусом.</p><div class="row"><input id="fmin" type="number" value="${FL.min}" aria-label="Мінімум котушок"><button class="btn ghost" id="setmin">Зберегти мінімум</button></div>`:''}<h3>Останні заміни</h3>${FL.log.slice(-6).reverse().map(x=>`<button class="li" data-box="${x.m}" data-force="view"><b>${x.m}</b><span>${dt(x.t)} · ${esc(fn(x.w))}</span></button>`).join('')}<h3>Поповнення</h3>${FL.inc.slice().reverse().map(x=>`<div class="li"><b>+${x.n}</b><span>${dt(x.t)} · ${esc(fn(x.w))}</span></div>`).join('')}</section>`;
+ return h},
+stat(){let h=`<h1>Статистика</h1><div class="seg"><button data-stp="shift" class="${stP==='shift'?'on':''}">За зміну</button><button data-stp="month" class="${stP==='month'?'on':''}">За місяць</button><button data-stp="workers" class="${stP==='workers'?'on':''}">Працівники</button></div>`;
+ return h+(stP==='shift'?statShift():stP==='month'?statMonth():statWorkers())}
+};
+const formAssign=s=>{const S=SEC[s];sheet(`<div class="sh-h"><div><h2>Призначити на сектор ${s}</h2><small>Працівник одразу стає на зміну, без підтвердження. Зараз: ${S.holder==='admin'?'нікого':esc(u(S.holder).name)}</small></div></div><form id="fasg" data-s="${s}"><div class="stc">${U.filter(x=>x.role==='worker'&&x.active&&x.id!==S.holder).map((x,i)=>{const busy=['A','B'].find(z=>SEC[z].holder===x.id);return `<label class="opt"><input type="radio" name="aw" value="${x.id}" ${i?'':'checked'}>${esc(x.name)}${busy?`<small>зараз у секторі ${busy}</small>`:''}</label>`}).join('')}</div><button class="btn wide">Призначити</button></form>`)};
+const shItem=x=>`<div class="card sm"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${esc(x.part)} · ${x.qty} шт${x.kind==='d'?' (брак)':''}</b></div>${x.note?`<p>${esc(x.note)}</p>`:''}<small class="mut">${dt(x.tb||x.t)} · ${esc(fn(x.by||x.w))}</small>${isAdm()&&x.status==='pending'?`<div class="row"><button class="btn" data-shok="${x.id}">Підтвердити</button><button class="btn ghost" data-shno="${x.id}">Відхилити</button></div>`:''}</div>`;
+const formShip=()=>sheet(`<div class="sh-h"><div><h2>Відвантаження</h2><small>Кількість одразу спишеться зі складу</small></div></div><form id="fsh"><label>Деталь<select id="spp">${parts.map(p=>{const x=stk(p);return `<option value="${esc(p)}">${esc(p)} · вільно ${x.fg} шт, брак ${x.fd}</option>`}).join('')}</select></label>
+ <div class="seg" style="margin-top:12px">${[['g','Придатні'],['d','Брак']].map(([k,l],i)=>`<label class="opt" style="flex:1"><input type="radio" name="sk" value="${k}" ${i?'':'checked'}>${l}</label>`).join('')}</div>
+ <label for="sq">Кількість, шт</label>${step('sq',0)}<label>Куди / коментар<textarea id="sn" rows="2" placeholder="Напр.: Нова пошта, самовивіз"></textarea></label><button class="btn wide">Відвантажено, списати зі складу</button></form>`);
+const secCard=s=>{const S=SEC[s],sh=curSh(s);let t;
+ if(S.holder==='admin')t=`<p>Сектор у адміністратора, на зміні нікого.</p>${S.pend?`<p>Передано: <b>${esc(u(S.pend.to).name)}</b>, чекає підтвердження.</p>`:''}${isAdm()?`<button class="btn wide" data-assign="${s}">Призначити працівника</button>`:''}`;
+ else t=`<p><b>${esc(u(S.holder).name)}</b> · ${S.pend?`здає зміну, чекає підтвердження від ${esc(u(S.pend.to).name)}`:`на зміні з ${dt(sh.start)}`}</p>${sh.rem?`<p class="rem">Зауваження при прийманні: ${esc(sh.rem)}</p>`:''}${shStats(sh)}${isAdm()?`<div class="row"><button class="btn sec" data-assign="${s}">Призначити іншого</button><button class="btn ghost" data-take="${s}">Забрати сектор</button></div>`:''}`;
+ return `<section class="card"><h2>Сектор ${s}</h2>${S.notice&&S.holder==='admin'?`<p class="rem">${esc(S.notice)}</p>`:''}${t}</section>`};
+const bars=d=>{const mx=Math.max(1,d.mach,d.fail,d.err);return REASONS.map(([k,l])=>`<div class="bar"><span>${l}</span><div><i style="width:${d[k]/mx*100}%"></i></div><b>${d[k]}</b></div>`).join('')};
+const byPart=rs=>{const o={};rs.forEach(x=>{const a=o[x.part]??={q:0,d:0};a.q+=x.qty;a.d+=sumD(x.d)});return `<table><thead><tr><th>Деталь</th><th class="n">Виробів</th><th class="n">Брак</th></tr></thead><tbody>${Object.entries(o).sort((a,b)=>b[1].q-a[1].q).map(([p,a])=>`<tr><td>${esc(p)}</td><td class="n">${a.q}</td><td class="n">${a.d} · ${pct(a.d,a.q)}</td></tr>`).join('')}</tbody></table>`};
+const fixes=(w,a,b)=>{const r=[];P.forEach(p=>p.h.forEach(e=>{if(e.status==='green'&&e.w===w&&e.t>=a&&e.t<b)r.push({m:p.m,t:e.t,fix:e.fix})}));return r};
+const down=(a,b,secs)=>{let ms=0;P.forEach(p=>{if(!secs.includes(p.m[0]))return;let s0=null;p.h.forEach(e=>{if(e.status==='red'&&s0==null)s0=e.t;else if(e.status!=='red'&&s0!=null){ms+=Math.max(0,Math.min(e.t,b)-Math.max(s0,a));s0=null}});if(s0!=null)ms+=Math.max(0,Math.min(Date.now(),b)-Math.max(s0,a))});return ms};
+const statShift=()=>{const list=SH.filter(x=>!isW()||x.w===me).sort((a,b)=>b.start-a.start).slice(0,30);if(!list.length)return '<p class="empty">У вас ще не було змін.</p>';
+ let sh=list.find(x=>x.id===stSel)||list[0];const rs=shRecs(sh),a=agg(rs),end=sh.end||Date.now(),f=FL.log.filter(x=>x.m[0]===sh.s&&x.t>=sh.start&&x.t<end).length;
+ return `<label>Зміна<select id="shsel">${list.map(x=>`<option value="${x.id}" ${x.id===sh.id?'selected':''}>${dt(x.start)} · Сектор ${x.s} · ${esc(u(x.w).name)}${x.end?'':' (зараз)'}</option>`).join('')}</select></label>
+ <section class="card" style="margin-top:12px"><h2>${esc(u(sh.w).name)} · Сектор ${sh.s}</h2><p class="mut">${dt(sh.start)} – ${sh.end?dt(sh.end):'триває'} · попередня зміна: ${esc(u(sh.from).name)}</p>
+ <div class="stats four"><div><b>${a.q}</b><span>виробів</span></div><div><b>${a.td}</b><span>брак · ${pct(a.td,a.q)}</span></div><div><b>${dur(end-sh.start)}</b><span>час роботи</span></div><div><b>${fixes(sh.w,sh.start,end).length}</b><span>вирішено проблем</span></div></div>
+ <p class="mut">Заміна філаменту: ${f}</p><h3>Брак за причинами</h3>${bars(a.d)}<h3>За деталями</h3>${byPart(rs)}<h3>Усунуто технічних проблем</h3>${(()=>{const fx=fixes(sh.w,sh.start,end);return fx.length?`<p><b>${fx.length}</b>${fx.some(x=>x.m[0]!==sh.s)?` (з них в іншому секторі: ${fx.filter(x=>x.m[0]!==sh.s).length})`:''}</p>`+fx.map(x=>`<p class="mut">${x.m}: ${esc(x.fix)||'вирішено'}</p>`).join(''):'<p class="mut">Немає</p>'})()}<h3>Простій апаратів (не працювали)</h3><p>${dur(down(sh.start,end,[sh.s]))} сумарно</p><h3>Без світла</h3><p>${outMs(sh.start,end)?dur(outMs(sh.start,end)):'Не було'}</p>
+ ${sh.note?`<h3>Коментар при здачі</h3><p class="q">${esc(sh.note)}</p>`:''}${sh.rem?`<h3>Зауваження при прийманні</h3><p class="rem">${esc(sh.rem)}</p>`:''}</section>`};
+let wP='month';
+const wStats=(w,a,b)=>{const shs=SH.filter(x=>x.w===w&&(x.end||Date.now())>a&&x.start<b);const ms=shs.reduce((t,x)=>t+Math.max(0,Math.min(x.end||Date.now(),b)-Math.max(x.start,a)),0);const rs=R.filter(x=>x.w===w&&x.t>=a&&x.t<b),g=agg(rs);
+ const rep_=P.filter(p=>p.h[0].w===w&&p.h[0].t>=a&&p.h[0].t<b).length,fx=fixes(w,a,b),fl=FL.log.filter(x=>x.w===w&&x.t>=a&&x.t<b).length;
+ return{days:shs.length,ms,q:g.q,d:g.td,fx:fx.length,fxo:fx.filter(x=>!shs.some(s=>s.s===x.m[0])).length,rep:rep_,fl,avg:shs.length?Math.round(g.q/shs.length):0}};
+const statWorkers=()=>{const d=new Date();const key=wP;const chips=`<div class="chips">${[['month','Цей місяць'],['all','Весь час']].map(([k,l])=>`<button data-wp="${k}" class="${wP===k?'on':''}">${l}</button>`).join('')}</div>`;const W=cacheW[key];if(!W){const a0=wP==='month'?+new Date(d.getFullYear(),d.getMonth(),1):+new Date(2020,0,1);if(!cacheW['_'+key]){cacheW['_'+key]=1;rpc('worker_stats',{p_token:TOKEN,p_from:new Date(a0).toISOString(),p_to:new Date(Date.now()+6e4).toISOString()}).then(r=>{cacheW[key]=r;render()}).catch(e=>{delete cacheW['_'+key];toast(e.message)})}return chips+'<p class="empty">Завантаження…</p>'}const a=wP==='month'?+new Date(d.getFullYear(),d.getMonth(),1):0,b=Date.now()+1;
+ const rows=W.map(s=>({x:u(s.id),s:{...s,ms:+s.ms,avg:s.days?Math.round(s.q/s.days):0}})).sort((p,q)=>q.s.q-p.s.q);const mxq=Math.max(1,...rows.map(r=>r.s.q));
+ return chips+rows.map(({x,s},i)=>`<section class="card" style="${x.id===me?'border:2px solid var(--acc)':''}"><div class="sh-h"><div><h2>${i+1}. ${esc(x.name)}</h2><small>${x.id===me?'це ви · ':''}${['A','B'].find(z=>SEC[z].holder===x.id)?'зараз на зміні, сектор '+['A','B'].find(z=>SEC[z].holder===x.id):'не на зміні'}</small></div></div>
+ <div class="gbar" style="margin:8px 0 10px"><i style="width:${s.q/mxq*100}%;background:var(--steel)"></i></div>
+ <div class="stats four"><div><b>${s.days}</b><span>робочих днів (змін)</span></div><div><b>${hrs(s.ms)}</b><span>годин</span></div><div><b>${fmt(s.q)}</b><span>виробів · ~${fmt(s.avg)} за зміну</span></div><div><b>${s.fx}</b><span>вирішено проблем${s.fxo?` · ${s.fxo} не у своєму секторі`:''}</span></div></div>
+ <table style="margin-top:10px"><tbody><tr><td>Брак</td><td class="n">${fmt(s.d)} шт · ${pct(s.d,s.q)}</td></tr><tr><td>Проблем записано</td><td class="n">${s.rep}</td></tr></tbody></table><p class="mut" style="margin-bottom:0">Заміна філаменту: ${s.fl}</p></section>`).join('')};
+const statMonth=()=>{const d=new Date();const ms=+new Date(d.getFullYear(),d.getMonth(),1);const days=d.getDate();const mine=false;
+ const rs=R.filter(x=>x.t>=ms&&(!mine||x.w===me)),a=agg(rs);
+ const shs=SH.filter(x=>(x.end||Date.now())>ms&&(!mine||x.w===me));const work=shs.reduce((t,x)=>t+Math.min(x.end||Date.now(),Date.now())-Math.max(x.start,ms),0);
+ const per=Array.from({length:days},()=>({q:0,d:0}));rs.forEach(x=>{const i=new Date(x.t).getDate()-1;per[i].q+=x.qty;per[i].d+=sumD(x.d)});const mx=Math.max(1,...per.map(p=>p.q+p.d));
+ const byW={};R.filter(x=>x.t>=ms).forEach(x=>{const o=byW[x.w]??={q:0,d:0};o.q+=x.qty;o.d+=sumD(x.d)});
+ const wh={};SH.filter(x=>(x.end||Date.now())>ms).forEach(x=>{const o=wh[x.w]??={n:0,t:0};o.n++;o.t+=Math.min(x.end||Date.now(),Date.now())-Math.max(x.start,ms)});
+ const mn=d.toLocaleString('uk-UA',{month:'long'});
+ return `<section class="card"><h2>${mine?'Мої показники':'Цех'} · ${mn}</h2><div class="stats four"><div><b>${a.q}</b><span>виробів</span></div><div><b>${a.td}</b><span>брак · ${pct(a.td,a.q)}</span></div><div><b>${hrs(work)}</b><span>час роботи · ${shs.length} змін</span></div><div><b>${hrs(down(ms,Date.now(),['A','B']))}</b><span>простій апаратів${mine?' (весь цех)':''}</span></div></div>
+ <h3>Вироби по днях <span style="color:var(--red)">■</span> брак</h3><div class="days">${per.map((p,i)=>`<div title="${i+1}: ${p.q} шт, брак ${p.d}"><i style="height:${p.q/mx*100}%"></i><i class="d" style="height:${p.d/mx*100}%"></i></div>`).join('')}</div><div class="dl">${per.map((_,i)=>`<span>${(i+1)%5===0||i===0?i+1:''}</span>`).join('')}</div>
+ <p class="mut">Без світла за місяць: ${outMs(ms,Date.now())?dur(outMs(ms,Date.now())):'не було'}</p><h3>Брак за причинами</h3>${bars(a.d)}
+ ${mine?'':`<h3>По працівниках</h3><table class="stack"><thead><tr><th>Працівник</th><th class="n">Змін</th><th class="n">Годин</th><th class="n">Виробів</th><th class="n">Брак</th><th class="n">Ремонтів</th></tr></thead><tbody>${Object.keys(wh).map(w=>{const o=byW[w]||{q:0,d:0};return `<tr${w===me?' style="font-weight:700"':''}><td>${esc(u(w).name)}</td><td class="n">${wh[w].n}</td><td class="n">${hrs(wh[w].t)}</td><td class="n">${o.q}</td><td class="n">${o.d} · ${pct(o.d,o.q)}</td><td class="n">${fixes(w,ms,Date.now()+1).length}</td></tr>`}).join('')}</tbody></table><p class="mut">«Ремонтів» — скільки технічних проблем працівник закрив як вирішені, у будь-якому секторі.</p>`}
+ <h3>За деталями</h3>${byPart(rs)}</section>`};
+
+const outMs=(a,b)=>OUT.reduce((t,o)=>t+Math.max(0,Math.min(o.to||Date.now(),b)-Math.max(o.from,a)),0);
+const ctlBadge=()=>0;
+const goalCard=g=>{const done=g.done;const pc=done/g.qty*100,left=Math.max(0,g.qty-done),days=Math.max(0,Math.ceil((g.until+DAY-Date.now())/DAY));
+ return `<section class="card goal"><div class="gh"><b>Ціль: ${fmt(g.qty)} шт · ${g.part==='*'?'усі моделі':esc(g.part)}</b><span>до ${dd2(g.until)}</span></div><div class="gbar"><i style="width:${Math.min(100,pc)}%"></i></div><div class="gh"><b class="big">${pc.toFixed(0)}%</b><span>зроблено ${fmt(done)} з ${fmt(g.qty)}<br>${left?`залишилось ${fmt(left)} · ${days} дн.${days?` · треба ~${fmt(Math.ceil(left/days))} на день`:''}`:'Ціль виконано'}</span></div>${isAdm()&&tab==='ctl'?`<button class="btn ghost wide" data-gdel="${g.id}">Видалити ціль</button>`:''}</section>`};
+const myGroup=(id=me)=>u(id).grp||0;
+const minReqDate=()=>MINREQ||Date.now()+3*DAY;
+const myDates=(id=me)=>{const g=myGroup(id),mn=minReqDate(),r=[];const n=new Date();for(let j=0;j<70&&r.length<8;j++){const d=new Date(n.getFullYear(),n.getMonth(),n.getDate()+j,8);if(+d<mn||grpOf(+d)!==g)continue;r.push(+d)}return r};
+const RT={off:'Вихідний',sub:'Підміна',swap:'Обмін змінами'};
+const reqText=x=>{const W=esc(u(x.w).name);if(x.type==='off')return `${W}: вихідний ${dd(x.date)}`;const S=esc(u(x.sub).name);let t=`<b>${dd(x.date)}</b>: виходить <b>${S}</b> замість ${W}`;if(x.type==='swap')t+=`<br><b>${dd(x.date2)}</b>: виходить <b>${W}</b> замість ${S}`;return t};
+const reqTitle=x=>x.type==='off'?`Вихідний · ${dd(x.date)}`:x.type==='swap'?`Обмін: ${esc(fn(x.w))} ⇄ ${esc(fn(x.sub))}`:`Підміна: ${esc(fn(x.sub))} замість ${esc(fn(x.w))}`;
+const reqItem=x=>`<div class="card sm"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${reqTitle(x)}</b><span class="pill ${['approved','agreed'].includes(x.status)?'':x.status==='rejected'||x.status==='declined'?'red':'yellow'}" style="${['approved','agreed'].includes(x.status)?'background:var(--grn);color:#fff':''}">${RQL[x.status]}</span></div><p>${reqText(x)}</p>${x.note?`<p class="q">${esc(x.note)}</p>`:''}<small class="mut">Створено ${dt(x.t)}</small>${isAdm()&&x.status==='pending'?`<div class="row"><button class="btn" data-rqok="${x.id}">Погодити</button><button class="btn ghost" data-rqno="${x.id}">Відхилити</button></div>`:''}</div>`;
+const lightCard=()=>{if(ME().role==='view')return '';const o=OUT.find(x=>!x.to);const td=OUT.filter(x=>x.to&&x.from>=st).slice().reverse();
+ return `<section class="card"><h2>Світло</h2>${o?`<p class="rem" style="font-size:16px"><b>Світла немає з ${hm(o.from)}</b> · ${dur(Date.now()-o.from)} · ${esc(fn(o.w))}</p><button class="btn wide" data-lon="1">Світло з'явилося</button>`:`<p class="mut" style="margin-top:0">Якщо зникло світло, натисніть кнопку, а коли з'явиться, натисніть ще раз. Простій піде в статистику.</p><div class="row"><button class="btn sec" data-loff="1">Зникло світло</button><button class="btn ghost" data-lman="1">Вказати вручну</button></div>`}${td.map(x=>`<p class="mut">Сьогодні: ${hm(x.from)}–${hm(x.to)} (${dur(x.to-x.from)})</p>`).join('')}</section>`};
+const homeExtra=()=>homeExtra2();
+
+const notifCard=()=>{let h='';{const nn=NOTIF.filter(x=>!x.read).sort((a,b)=>b.t-a.t);if(nn.length)h=`<section class="card inv"><h2>Сповіщення</h2>${nn.map(x=>{const r=REQ.find(y=>y.id===x.rq);return `<div class="je"><small>${dt(x.t)}</small><p><b>${esc(x.txt)}</b></p>${r?`<p class="mut">${reqText(r)}</p>`:''}</div>`}).join('')}<button class="btn ghost wide" data-nread="1">Зрозуміло</button></section>`}return h};
+const homeExtra2=()=>{let h='';
+ if(isW()){const tk=TASK.filter(x=>!x.done&&(x.to===me||x.to==='all'));
+  if(tk.length)h+=`<h2>Завдання</h2>`+tk.map(x=>`<div class="card task"><p><b>${esc(x.text)}</b></p><small class="mut">Від ${esc(fn(x.by))} · ${dt(x.t)}${x.due?` · виконати до ${dd(x.due)}`:''}${x.to==='all'?' · для всіх':''}</small><button class="btn wide" data-tdone="${x.id}">Виконано</button></div>`).join('');
+  REQ.filter(x=>x.type!=='off'&&x.sub===me&&x.status==='colleague').forEach(x=>h+=`<section class="card inv"><h2>${x.type==='sub'?'Прохання підмінити':'Пропозиція обміну змінами'}</h2><p>${x.type==='sub'?`<b>${esc(u(x.w).name)}</b> просить вас вийти на зміну <b>${dd(x.date)}</b> замість себе.`:`<b>${esc(u(x.w).name)}</b> пропонує помінятися: ви виходите <b>${dd(x.date)}</b>, а ${esc(fn(x.w))} — <b>${dd(x.date2)}</b> (ваша зміна).`}</p>${x.note?`<p class="q">${esc(x.note)}</p>`:''}<div class="row"><button class="btn" data-subok="${x.id}">Погоджуюсь</button><button class="btn ghost" data-subno="${x.id}">Не можу</button></div></section>`)}
+ h+=lightCard();
+ h+=GOALS.map(goalCard).join('');
+ if(isW())h+=`<button class="btn ghost wide" style="margin:0 0 6px" data-myreq="1">Підміна або обмін змінами</button>`;
+ return h};
+const updReq=()=>{const t=document.querySelector('[name=rt]:checked')?.value;if(!t)return;$('#lrs').hidden=t==='off';$('#lrd2').hidden=t!=='swap';$('#rd2').innerHTML=myDates($('#rs').value).map(d=>`<option value="${d}">${dd(d)}</option>`).join('')};
+const formReq=()=>{const my=REQ.filter(x=>x.w===me||x.sub===me).slice().reverse(),ds=myDates();
+ sheet(`<div class="sh-h"><div><h2>Підміна або обмін</h2><small>Не пізніше ніж за 3 робочі дні до зміни. Найраніша дата: ${dd(minReqDate())}</small></div></div>
+ <form id="freq"><div class="seg">${[['sub','Підміна'],['swap','Обмін змінами']].map(([k,l],i)=>`<label class="opt" style="flex:1;padding:10px 8px"><input type="radio" name="rt" value="${k}" ${i?'':'checked'}>${l}</label>`).join('')}</div>
+ <label>Моя зміна<select id="rd">${ds.map(d=>`<option value="${d}">${dd(d)}</option>`).join('')}</select></label>
+ <label id="lrs" hidden>Колега<select id="rs">${U.filter(x=>x.role==='worker'&&x.active&&x.id!==me&&myGroup(x.id)!==myGroup()).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select></label><label id="lrd2" hidden>Зміна колеги, на яку виходите ви<select id="rd2"></select></label>
+ <label>Причина / коментар<textarea id="rn" rows="2"></textarea></label><button class="btn wide">Надіслати</button></form>
+ <p class="mut">Підміну та обмін ви погоджуєте з колегою: щойно колега підтвердить, усе домовлено, адміністратору приходить лише сповіщення.</p>
+ <h3>Мої запити та домовленості</h3>${my.map(reqItem).join('')||'<p class="empty">Ще немає</p>'}`);updReq()};
+const formOut=()=>sheet(`<div class="sh-h"><h2>Простій без світла</h2></div><form id="fout"><label>Світло зникло<input id="of" type="datetime-local" value="${dl(Date.now()-3600e3)}"></label><label>Світло з'явилося<input id="ot" type="datetime-local" value="${dl(Date.now())}"></label><button class="btn wide">Зберегти</button></form>`);
+const CL={shift:'Зміна',prob:'Проблема',store:'Склад',people:'Люди',light:'Світло',admin:'Керування'};
+const journal=()=>{const E=[],n=id=>esc(u(id).name),ad=(t,c,w,txt)=>E.push({t,c,w,txt});
+ SH.forEach(x=>x.assigned?ad(x.start,'shift',x.assigned,`Сектор ${x.s}: адміністратор призначив ${n(x.w)}`):ad(x.start,'shift',x.w,`Сектор ${x.s}: зміну передано. ${n(x.from)} → ${n(x.w)}`));
+ ['A','B'].forEach(s=>{const p=SEC[s].pend;if(p)ad(p.t,'shift',p.from,`Сектор ${s}: здає зміну, чекає підтвердження від ${n(p.to)}${p.note?`. «${esc(p.note)}»`:''}`)});
+ DECL.forEach(x=>ad(x.t,'shift',x.w,`Сектор ${x.s}: зміну не прийнято. ${esc(x.rem)}`));
+ P.forEach(p=>p.h.forEach(e=>ad(e.t,'prob',e.w,`${p.m}: ${SL[e.status]}${e.text?` — ${esc(e.text)}`:''}${e.fix?`. Як вирішили: ${esc(e.fix)}`:''}`)));
+ ADJ.forEach(x=>ad(x.t,'store',x.w,`Коригування складу: ${esc(x.part)} ${x.qty>0?'+':''}${fmt(x.qty)} шт${x.kind==='d'?' (брак)':''}${x.note?` · ${esc(x.note)}`:''}`));
+ SHIP.forEach(x=>ad(x.tb||x.t,'store',x.by||x.w,`Відвантажено: ${esc(x.part)}, ${fmt(x.qty)} шт${x.kind==='d'?' (брак)':''}${x.note?` · ${esc(x.note)}`:''}`));
+ FL.log.forEach(x=>ad(x.t,'store',x.w,`Заміна філаменту на ${x.m}`));FL.inc.forEach(x=>ad(x.t,'store',x.w,`${x.n>0?'Поповнення':'Списання'} філаменту: ${x.n>0?'+':''}${x.n} котушок${x.note?` · ${esc(x.note)}`:''}`));
+ TASK.forEach(x=>{ad(x.t,'people',x.by,`Завдання → ${x.to==='all'?'усім':n(x.to)}: ${esc(x.text)}`);if(x.done)ad(x.done,'people',x.doneBy,`Виконано завдання: ${esc(x.text)}`)});
+ REQ.forEach(x=>{if(x.type==='off')ad(x.t,'people',x.w,`Запит на вихідний ${dd(x.date)}${x.note?` · ${esc(x.note)}`:''}`);if(x.status==='agreed')ad(x.tc,'people',x.sub,`${reqTitle(x)}<br>${reqText(x)}`);if(x.ta)ad(x.ta,'people',x.by,`${x.type==='off'?'Вихідний':'Підміна'} ${dd(x.date)} (${n(x.w)}): ${x.status==='approved'?'погоджено':'відхилено'}`)});
+ OUT.forEach(x=>{ad(x.from,'light',x.w,'Зникло світло');if(x.to)ad(x.to,'light',x.w,`Світло з'явилося. Простій ${dur(x.to-x.from)}`)});
+ GOALS.forEach(g=>ad(g.t,'admin',g.by,`Ціль: ${fmt(g.qty)} шт (${g.part==='*'?'усі моделі':esc(g.part)}) до ${dd2(g.until)}`));
+ APLOG.forEach(x=>ad(x.t,'admin',x.w,`${x.id}: апарат «${esc(x.name)}», ${TY[x.type]}`));
+ return E.filter(e=>e.t<=Date.now()+DAY).sort((a,b)=>b.t-a.t)};
+const CTL=()=>[['journal','Журнал'],['tasks','Завдання'],['req','Обміни змінами'],['goal','Ціль складу'],['models','Моделі'],['people','Люди та сектори'],['light','Світло']];
+const CV={
+journal(){const all=journal().filter(e=>jF==='all'||e.c===jF);let last='';
+ return `<div class="chips">${[['all','Усе'],...Object.entries(CL)].map(([k,l])=>`<button data-jf="${k}" class="${jF===k?'on':''}">${l}</button>`).join('')}</div><section class="card">${all.slice(0,jN).map(e=>{const d=dd(e.t);const hd=d!==last?`<div class="jd">${d}</div>`:'';last=d;return hd+`<div class="je"><small>${hm(e.t)} · ${esc(e.w==='admin'?'Адміністратор':fn(e.w))}</small><span class="jc c-${e.c}">${CL[e.c]}</span><p>${e.txt}</p></div>`}).join('')||'<p class="empty">Немає записів</p>'}${all.length>jN?`<button class="btn ghost wide" data-jmore="1">Показати ще</button>`:''}</section>`},
+tasks(){if(TASK.some(x=>x.done&&!x.seen)){TASK.forEach(x=>{if(x.done)x.seen=1});rpc('tasks_seen',{p_token:TOKEN}).catch(()=>{})}const op=TASK.filter(x=>!x.done).reverse(),dn=TASK.filter(x=>x.done).reverse();const it=x=>`<div class="card sm task"><p><b>${esc(x.text)}</b></p><small class="mut">${x.to==='all'?'Усім':esc(u(x.to).name)} · ${dt(x.t)}${x.due?` · до ${dd(x.due)}`:''}${x.done?` · виконано ${dt(x.done)}, ${esc(fn(x.doneBy))}`:''}</small>${x.done?'':`<div class="row"><button class="btn ghost" data-tdel="${x.id}">Скасувати</button></div>`}</div>`;
+ return `<section class="card"><h2>Нове завдання</h2><form id="ftask"><label>Кому<select id="tto"><option value="all">Усім працівникам</option>${U.filter(x=>x.role==='worker'&&x.active).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select></label><label>Завдання<textarea id="ttx" rows="2" placeholder="Напр.: перевірити сопла на стелажі B-05"></textarea></label><label>Виконати до (необов'язково)<input id="tdue" type="date"></label><button class="btn wide">Дати завдання</button></form><p class="mut">Завдання з'явиться в працівника на головній сторінці.</p></section><h2>Відкриті</h2>${op.map(it).join('')||'<p class="empty">Немає</p>'}<h2>Виконані</h2>${dn.map(it).join('')||'<p class="empty">Немає</p>'}`},
+req(){const ag=REQ.filter(x=>x.status==='agreed').reverse();return `<h2 style="margin-top:0">Хто на кого помінявся</h2><p class="mut">Працівники домовляються між собою, адміністратору приходить сповіщення.</p>${ag.map(reqItem).join('')||'<p class="empty">Немає</p>'}`},
+goal(){return `${GOALS.map(goalCard).join('')||'<p class="empty">Цілей немає</p>'}<section class="card"><h2>Нова ціль</h2><form id="fgoal"><label>Модель<select id="gp"><option value="*">Усі моделі</option>${parts.map(p=>`<option>${esc(p)}</option>`).join('')}</select></label><label>Скільки виготовити на склад, шт<input id="gq" type="number" inputmode="numeric" value="10000"></label><label>До дати<input id="gu" type="date" value="2026-12-31"></label><label>Рахувати з<input id="gf" type="date" value="${dIn(Date.now())}"></label><button class="btn wide">Поставити ціль</button></form><p class="mut">Відсоток рахується з придатних деталей, знятих з апаратів від дати «Рахувати з». Ціль бачать усі на головній і в розділі «Склад».</p></section>`},
+models(){return `<section class="card"><h2>Моделі (деталі)</h2><p class="mut" style="margin-top:0">Нова назва застосується скрізь: у записах, на складі, у цілях.</p>${parts.map((p,i)=>`<form class="row mrow" data-i="${i}"><input value="${esc(p)}" aria-label="Назва моделі"><button class="btn ghost">Зберегти</button></form>`).join('')}<h3>Додати модель</h3><form id="fmadd" class="row"><input id="pn" placeholder="Назва нової моделі" aria-label="Назва нової моделі"><button class="btn">Додати</button></form></section>`},
+people(){const ppl=U.filter(x=>x.id!=='admin');return `${['A','B'].map(secCard).join('')}<section class="card"><h2>Люди</h2><button class="btn wide" style="margin-top:0" data-padd="1">+ Додати людину</button>${ppl.map(x=>`<button class="li" data-pedit="${x.id}" style="margin-top:6px;${x.active?'':'opacity:.5'}"><b>${esc(x.name)}</b><span>${RN[x.role]}${x.role==='worker'?` · група ${x.grp||'—'}`:''}${x.active?'':' · вимкнено'}</span></button>`).join('')}</section>
+ <section class="card"><h2>Графік змін</h2><p class="mut" style="margin-top:0">Зміни по 24 год з 08:00. Групи працюють по черзі: 1 → 2 → 3. Вкажіть будь-яку дату, коли працює група 1.</p><form id="fset" class="row"><input id="ranc" type="date" value="${esc(SET.rotation_anchor||'')}" aria-label="Дата, коли працює група 1"><button class="btn">Зберегти</button></form><p class="mut">Поточна зміна — група ${grpOf(st)||'—'}.</p></section>
+ <section class="card"><h2>Резервна копія</h2><p class="mut" style="margin-top:0">Раз на тиждень вивантажуйте всі дані в Excel і зберігайте файл.</p><button class="btn sec wide" data-export="1">Вивантажити все в Excel</button></section>`},
+light(){return lightCard()+`<section class="card"><h2>Усі простої без світла</h2>${OUT.slice().reverse().map(x=>`<div class="li"><b>${dt(x.from)} – ${x.to?hm(x.to):'триває'}</b><span>${x.to?dur(x.to-x.from):''} · ${esc(fn(x.w))}</span></div>`).join('')}</section>`}
+};
+V.ctl=()=>`<h1>Керування</h1><div class="chips">${CTL().map(([k,l,c])=>`<button data-ctl="${k}" class="${ctlS===k?'on':''}">${l}${c?`<i>${c}</i>`:''}</button>`).join('')}</div>`+CV[ctlS]();
+const renameModel=(o,nw)=>{const i=parts.indexOf(o);parts[i]=nw;R.forEach(x=>{if(x.part===o)x.part=nw});SHIP.forEach(x=>{if(x.part===o)x.part=nw});GOALS.forEach(x=>{if(x.part===o)x.part=nw});for(const k in lastPart)if(lastPart[k]===o)lastPart[k]=nw};
+const d00=t=>{const d=new Date(t);d.setHours(0,0,0,0);return +d};
+let vFrom=+new Date(new Date().getFullYear(),new Date().getMonth(),1),vTo=d00(Date.now()),vPre='month';
+const stockAt=(t,p)=>{let g=0,d=0;R.forEach(x=>{if(x.t<t&&(!p||x.part===p)){g+=x.qty;d+=sumD(x.d)}});SHIP.forEach(x=>{if((x.tb||x.t)<t&&(!p||x.part===p)){if(x.kind==='g')g-=x.qty;else d-=x.qty}});return{g,d}};
+V.viewer=()=>{const key=vFrom+'_'+vTo;const now=Object.values(STOCK).reduce((a,x)=>({g:a.g+x.g,d:a.d+x.d}),{g:0,d:0});
+ const pre=[['today','Сьогодні'],['7','7 днів'],['month','Цей місяць'],['prev','Минулий місяць'],['all','Весь час']];
+ let h=`<h1>Склад</h1><section class="hero"><div class="hl">Зараз на складі</div><div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:8px"><div><b>${fmt(now.g)}</b><span>придатних деталей</span></div><div><b>${fmt(now.d)}</b><span>браку</span></div></div></section>
+ <h2>Період</h2><div class="chips">${pre.map(([k,l])=>`<button data-vp="${k}" class="${vPre===k?'on':''}">${l}</button>`).join('')}</div>
+ <div class="row" style="margin-top:0"><label style="flex:1;margin:0">З<input type="date" id="vf" value="${dIn(vFrom)}"></label><label style="flex:1;margin:0">По<input type="date" id="vt" value="${dIn(vTo)}"></label></div>`;
+ const S=cacheV[key];if(!S){if(!cacheV['_'+key]){cacheV['_'+key]=1;rpc('range_stats',{p_token:TOKEN,p_from:dIn(vFrom),p_to:dIn(vTo)}).then(r=>{cacheV[key]=r;render()}).catch(e=>{delete cacheV['_'+key];toast(e.message)})}return h+'<p class="empty">Завантаження…</p>'}
+ const a=vFrom,nd=Math.round((vTo-vFrom)/DAY)+1,per=Array.from({length:nd},()=>({q:0,d:0})),bm={};
+ S.days.forEach(x=>{const i=Math.round((+new Date(x.d+'T00:00')-a)/DAY);if(per[i]){per[i].q+=x.q;per[i].d+=x.def}const o=bm[x.m]??={q:0,d:0};o.q+=x.q;o.d+=x.def});
+ const q=per.reduce((t,p)=>t+p.q,0),td=per.reduce((t,p)=>t+p.d,0),mx=Math.max(1,...per.map(p=>p.q+p.d));
+ const shg=S.shipped.filter(x=>x.kind==='g').reduce((t,x)=>t+x.q,0),shd=S.shipped.filter(x=>x.kind==='d').reduce((t,x)=>t+x.q,0);
+ const se={};S.stock_end.forEach(x=>se[x.m]=x);const eg=S.stock_end.reduce((t,x)=>t+x.g,0),ed=S.stock_end.reduce((t,x)=>t+x.d,0);
+ return h+`<section class="card" style="margin-top:12px"><h2>${dd2(a)} – ${dd2(vTo)}</h2><div class="stats four"><div><b>${fmt(q)}</b><span>виготовлено придатних</span></div><div><b>${fmt(td)}</b><span>брак · ${pct(td,q)}</span></div><div><b>${fmt(shg)}</b><span>відвантажено придатних</span></div><div><b>${fmt(eg)}</b><span>на складі на кінець періоду · брак ${fmt(ed)}</span></div></div>
+ ${nd>1&&nd<=62?`<h3>Виготовлено по днях <span style="color:var(--red)">■</span> брак</h3><div class="days">${per.map((p,i)=>`<div title="${dd2(a+i*DAY)}: ${p.q} шт, брак ${p.d}"><i style="height:${p.q/mx*100}%"></i><i class="d" style="height:${p.d/mx*100}%"></i></div>`).join('')}</div><div class="dl">${per.map((_,i)=>`<span>${i===0||i===nd-1||nd<=10?new Date(a+i*DAY+12*36e5).getDate():''}</span>`).join('')}</div>`:''}
+ <h3>За моделями</h3><table><thead><tr><th>Модель</th><th class="n">Виготовлено</th><th class="n">Брак</th><th class="n">На складі</th></tr></thead><tbody>${parts.map(p=>{const id=MID[p],r=bm[id]||{q:0,d:0},s_=se[id]||{g:0};return `<tr><td>${esc(p)}</td><td class="n">${fmt(r.q)}</td><td class="n">${fmt(r.d)}</td><td class="n">${fmt(s_.g)}</td></tr>`}).join('')}</tbody></table>${shd?`<p class="mut">Відвантажено браку за період: ${fmt(shd)} шт</p>`:''}</section>`};
+const setPre=k=>{const n=new Date(),t=d00(Date.now());vPre=k;if(k==='today'){vFrom=t;vTo=t}else if(k==='7'){vFrom=t-6*DAY;vTo=t}else if(k==='month'){vFrom=+new Date(n.getFullYear(),n.getMonth(),1);vTo=t}else if(k==='prev'){vFrom=+new Date(n.getFullYear(),n.getMonth()-1,1);vTo=+new Date(n.getFullYear(),n.getMonth(),0)}else{vFrom=+new Date(2020,0,1);vTo=t}};
+const render=()=>{if(!me){$('#who').hidden=true;$('#nav').innerHTML='';$('#main').innerHTML=V.login();return}
+ if(!loaded){$('#who').hidden=true;$('#nav').innerHTML='';$('#main').innerHTML='<p class="empty">Завантаження…</p>';return}
+ const m=ME();$('#who').hidden=false;$('#who').innerHTML=`<span>${esc(m.name.split(' ')[0])}</span><small>${RN[m.role]}</small>`;
+ if(m.role==='view'){$('#nav').innerHTML='';$('#main').innerHTML=V.viewer();return}
+ if(!tabs().some(t=>t[0]===tab))tab='home';
+ $('#nav').innerHTML=tabs().map(([k,l])=>`<button data-tab="${k}" class="${tab===k?'on':''}" aria-label="${l}">${ico(k)}<span>${l}</span>${k==='racks'&&openCnt()?`<i>${openCnt()}</i>`:''}${k==='ctl'&&ctlBadge()?`<i>${ctlBadge()}</i>`:''}${k==='store'&&isAdm()&&pendShip().length?`<i>${pendShip().length}</i>`:''}${k==='home'&&pendToMe().length?'<i>!</i>':''}${k==='home'&&isAdm()&&NOTIF.some(x=>!x.read)?`<i>${NOTIF.filter(x=>!x.read).length}</i>`:''}</button>`).join('');
+ $('#main').innerHTML=V[tab]()};
+const sheet=(html,back)=>{$('#sheet').innerHTML=`<div class="sbar">${back?`<button class="back" ${back}>← Назад</button>`:''}<button class="x" data-close="1" aria-label="Закрити">×</button></div>`+html;$('#ov').hidden=false;$('#sheet').scrollTop=0};
+const close=()=>{$('#ov').hidden=true};
+let tt;const toast=s=>{const t=$('#toast');t.textContent=s;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)};
+const step=(id,v)=>`<div class="step"><button type="button" data-st="${id}" data-dv="-1" aria-label="Менше">−</button><input id="${id}" type="number" inputmode="numeric" min="0" value="${v}"><button type="button" data-st="${id}" data-dv="1" aria-label="Більше">+</button></div>`;
+
+let rackMode='view';
+const openRack=(key,mode)=>{rackMode=mode;const s=key[0];
+ const sh=SEC[s].holder!=='admin'?curSh(s):null;
+ const box=p=>{const id=`${key}-${p}`,a=AP[id],st_=mst(id);let sub;
+  if(mode==='prod'){const n=sh?R.filter(x=>x.m===id&&x.t>=sh.start).reduce((t,x)=>t+x.qty,0):0;sub=`<small>${esc(lastPart[id]||'—')} · за зміну: ${n} шт</small>`}
+  else{const f=lastFil(id);sub=`<small>${TY[a.type]}</small><small>Філамент: ${f?dt(f.t):'—'}</small>`}
+  return `<button class="box ${st_}" data-box="${id}"><span class="bn">${p}</span><span class="ba">${esc(a.name)}</span>${sub}${st_?`<span class="pill ${st_}">${SL[st_]}</span>`:''}</button>`};
+ sheet(`<div class="sh-h"><div><h2>Стелаж ${key}</h2><small>Сектор ${s} · ${mode==='prod'?'натисніть на апарат, щоб записати зняття':'натисніть на скриньку'}</small></div></div>
+ <div class="boxes">${[5,3,1].map(p=>`<div class="flr">${FLOOR[p]}</div>${box(p)}${box(p+1)}`).join('')}</div>`)};
+const openBox=id=>{const a=AP[id],recs=R.filter(x=>x.m===id).slice(-5).reverse(),ps=P.filter(p=>p.m===id).reverse(),fl=FL.log.filter(x=>x.m===id).slice(-3).reverse();const ed=ME().role!=='view';
+ sheet(`<div class="sh-h"><div><h2>${id}</h2><small>Сектор ${id[0]} · стелаж ${id.slice(2,4)} · ${POS(+id[5])}</small></div></div>
+ <section class="card"><h3 style="margin-top:0">Апарат у скриньці</h3>${ed?`<form id="fap" data-id="${id}"><label>Назва / інвентарний номер<input id="apn" value="${esc(a.name)}"></label><div class="seg" style="margin-top:10px">${['A','P'].map(t=>`<label class="opt" style="flex:1"><input type="radio" name="apt" value="${t}" ${a.type===t?'checked':''}>${TY[t]}</label>`).join('')}</div><button class="btn ghost wide" style="margin-top:0">Зберегти апарат</button></form>`:`<p><b>${esc(a.name)}</b> · ${TY[a.type]}</p>`}</section>
+ <section class="card"><h3 style="margin-top:0">Філамент</h3>${fl.length?fl.map(x=>`<p>${dt(x.t)} · ${esc(fn(x.w))}</p>`).join(''):'<p class="empty">Замін не записано</p>'}${ed?`<button class="btn sec wide" data-fil="${id}">Замінив філамент</button>`:''}</section>
+ <h3>Проблеми та як вирішили</h3>${ps.length?ps.map(pItem).join(''):'<p class="empty">Не було</p>'}${ed?`<button class="btn warn wide" style="margin-top:4px" data-np="${id}">Нова проблема</button>`:''}
+ <h3>Останні зняття</h3>${recs.length?`<table><thead><tr><th>Час</th><th>Деталь</th><th class="n">К-сть</th><th class="n">Брак</th></tr></thead><tbody>${recs.map(x=>`<tr><td>${dt(x.t)}</td><td>${esc(x.part)}</td><td class="n">${x.qty}</td><td class="n">${sumD(x.d)}</td></tr>`).join('')}</tbody></table>`:'<p class="empty">Ще немає</p>'}`,`data-rack="${id.slice(0,4)}" data-mode="view"`)};
+const formRm=id=>{const lp=lastPart[id]||parts[0];
+ sheet(`<div class="sh-h"><div><h2>Зняття · ${id}</h2><small>${esc(AP[id].name)} · ${TY[AP[id].type]}</small></div></div><form id="frm" data-id="${id}">
+ <label>Модель (деталь)<select id="fp">${parts.map(p=>`<option ${p===lp?'selected':''}>${esc(p)}</option>`).join('')}</select></label>
+ <label for="rq">Готових деталей</label>${step('rq',0)}
+ <h3>Брак і причина</h3>${REASONS.map(([k,l])=>`<div class="sr"><span>${l}</span>${step('d_'+k,0)}</div>`).join('')}
+ <button class="btn wide">Зберегти</button></form>`,`data-rack="${id.slice(0,4)}" data-mode="prod"`);setTimeout(()=>$('#rq')?.select(),50)};
+const formP=(id,pv)=>{const p=pv?P.find(x=>x.id==pv):null;const mid=p?p.m:id;const ed=ME().role!=='view';
+ sheet(`<div class="sh-h"><div><h2>${p?'Проблема':'Нова проблема'} · ${mid}</h2><small>${esc(AP[mid].name)} · ${POS(+mid[5])}</small></div></div>
+ ${p?`<div class="hist">${p.h.map(e=>`<div class="he"><small>${dt(e.t)} · ${esc(fn(e.w))} · ${SL[e.status]}</small>${e.text?`<p>${esc(e.text)}</p>`:''}${e.fix?`<p class="fix">Як вирішили: ${esc(e.fix)}</p>`:''}</div>`).join('')}</div>`:''}
+ ${ed?`<form id="fpr" data-id="${mid}" data-pid="${p?p.id:''}">${p?'':'<label>Що сталося<textarea id="pt" rows="2" placeholder="Напр.: обрив філаменту, не подає"></textarea></label>'}
+ <label>${p?'Як вирішили / коментар':'Що зробили (якщо щось)'}<textarea id="pf" rows="2" placeholder="Напр.: почистив сопло"></textarea></label>
+ <div class="stc">${['red','yellow','green'].map(s=>`<label class="opt sopt s-${s}"><input type="radio" name="ps" value="${s}" ${(p?p.status:'red')===s?'checked':''}>${SL[s]}</label>`).join('')}</div>
+ <button class="btn wide">Зберегти</button></form>`:''}`,`data-box="${mid}" data-force="view"`)};
+const formHand=s=>{const S=SEC[s],sh=S.holder==='admin'?null:curSh(s);const ng=sh?(u(sh.w).grp||0)%3+1:0;const sug=U.find(x=>x.role==='worker'&&x.active&&x.grp===ng&&!['A','B'].some(z=>SEC[z].holder===x.id))?.id;
+ const cands=U.filter(x=>x.role==='worker'&&x.active&&x.id!==S.holder);
+ sheet(`<div class="sh-h"><div><h2>${sh?'Здати зміну':'Передати сектор'} · ${s}</h2><small>${sh?`Зміна з ${dt(sh.start)}, ${dur(Date.now()-sh.start)}`:'Перша передача від адміністратора'}</small></div></div>
+ ${sh?shStats(sh):''}${openList(s)}<form id="fho" data-s="${s}">
+ <h3>Кому передати</h3><div class="stc">${cands.map(x=>{const busy=['A','B'].find(z=>SEC[z].holder===x.id);return `<label class="opt"><input type="radio" name="to" value="${x.id}" ${x.id===(sug||cands[0].id)?'checked':''}>${esc(x.name)}${busy?`<small>зараз у секторі ${busy}</small>`:''}</label>`}).join('')}</div>
+ <label>Новини та проблеми для наступної зміни<textarea id="hn" rows="3" placeholder="Що важливо знати"></textarea></label>
+ <div class="stc"><label class="opt"><input type="checkbox" id="co1">Робоче місце прибране</label><label class="opt"><input type="checkbox" id="co2">Новини та проблеми передав</label></div>
+ <button class="btn wide">${sh?'Здати зміну':'Передати'}</button></form>`)};
+const menu=()=>sheet(`<div class="sh-h"><div><h2>${esc(ME().name)}</h2><small>${RN[ME().role]}</small></div></div>
+ <button class="btn ghost wide" style="margin-top:0" data-refresh="1">Оновити дані</button>
+ <h3>Змінити свій PIN</h3><form id="fmypin"><label>Поточний PIN<input id="op" type="password" inputmode="numeric" autocomplete="current-password"></label><label>Новий PIN<input id="np" type="password" inputmode="numeric" autocomplete="new-password"></label><button class="btn sec wide">Змінити PIN</button></form>
+ <button class="btn ghost wide" data-logout="1">Вийти</button>`);
+const formPerson=id=>{const x=id?u(id):{name:'',role:'worker',grp:1,active:true};sheet(`<div class="sh-h"><h2>${id?'Редагувати':'Нова людина'}</h2></div><form id="fper" data-id="${id||''}"><label>Ім'я та прізвище<input id="pnm" value="${esc(x.name)}" autocomplete="off"></label>
+ <h3>Роль</h3><div class="stc">${[['worker','Працівник'],['admin','Адміністратор'],['view','Перегляд (лише склад)']].map(([k,l])=>`<label class="opt"><input type="radio" name="pr" value="${k}" ${x.role===k?'checked':''}>${l}</label>`).join('')}</div>
+ <label>Група змін (для працівника)<select id="pg">${[1,2,3].map(g=>`<option value="${g}" ${x.grp===g?'selected':''}>Група ${g}</option>`).join('')}</select></label>
+ <label>${id?'Новий PIN (залиште порожнім, щоб не змінювати)':'PIN'}<input id="ppin" inputmode="numeric" autocomplete="off" placeholder="4 цифри; адміністратору — від 6"></label>
+ ${id?`<label class="opt" style="margin-top:12px"><input type="checkbox" id="pact" ${x.active?'checked':''}>Доступ увімкнено</label>`:''}
+ <button class="btn wide">Зберегти</button></form>`)};
+const formAdj=()=>sheet(`<div class="sh-h"><div><h2>Інвентаризація</h2><small>Початковий залишок або виправлення після перерахунку</small></div></div><form id="fadj"><label>Модель<select id="ajp">${parts.map(p=>`<option value="${esc(p)}">${esc(p)} · зараз ${stk(p).g} шт, брак ${stk(p).d}</option>`).join('')}</select></label>
+ <div class="seg" style="margin-top:12px">${[['g','Придатні'],['d','Брак']].map(([k,l],i)=>`<label class="opt" style="flex:1"><input type="radio" name="ak" value="${k}" ${i?'':'checked'}>${l}</label>`).join('')}</div>
+ <label>Скільки додати, шт (з мінусом — щоб зменшити)<input id="ajq" type="number"></label><label>Коментар<input id="ajn" placeholder="Напр.: початковий залишок"></label><button class="btn wide">Зберегти</button></form>`);
+const menuFil=()=>sheet(`<div class="sh-h"><h2>Склад філаменту</h2></div><div class="stock ${FL.stock<=FL.min?'low':''}"><b>${FL.stock}</b><span>котушок · мінімум ${FL.min}</span></div>${isAdm()?`<div class="row"><input id="stn" type="number" inputmode="numeric" min="1" value="20" aria-label="Кількість котушок"><button class="btn" id="addst">+ Надходження</button></div>`:''}<h3>Останні заміни</h3>${FL.log.slice(-8).reverse().map(x=>`<div class="li"><b>${x.m}</b><span>${dt(x.t)} · ${esc(fn(x.w))}</span></div>`).join('')}<h3>Надходження</h3>${FL.inc.slice().reverse().map(x=>`<div class="li"><b>+${x.n}</b><span>${dt(x.t)} · ${esc(fn(x.w))}</span></div>`).join('')}`,'data-menu="main"');
+const menuParts=()=>sheet(`<div class="sh-h"><h2>Моделі (деталі)</h2></div><div class="ol">${parts.map(p=>`<span class="tag">${esc(p)}</span>`).join('')}</div>${false?`<div class="row"><input id="pn" placeholder="Новий номер деталі" aria-label="Новий номер деталі"><button class="btn" id="addpart">Додати</button></div>`:''}`,'data-menu="main"');
+const menuUsers=()=>sheet(`<div class="sh-h"><h2>Люди та сектори</h2></div>${['A','B'].map(secCard).join('')}<h3>Користувачі</h3><table class="stack"><thead><tr><th>Ім'я</th><th>Роль</th><th>PIN</th></tr></thead><tbody>${U.map(x=>`<tr><td>${esc(x.name)}</td><td>${RN[x.role]}</td><td>••••</td></tr>`).join('')}</tbody></table><p class="mut">У робочій версії тут додаються люди, змінюється PIN і відключається доступ.</p>`,'data-menu="main"');
+
+const accept=s=>{if(!$('#ci1').checked||!$('#ci2').checked)return toast('Підтвердіть обидва пункти');api('handover_accept',{p_sector:s},`Ви на зміні, сектор ${s}`)};
+const doLogin=async()=>{if(!lsel||pin.length<4)return;busy(true);try{const r=await rpc('login',{p_id:lsel,p_pin:pin});pin='';if(!r.ok){pinErr=r.msg;render();return}saveTok(r.token);tab='home';stSel=null;plF='all';await load();scrollTo(0,0);toast('Ви увійшли: '+ME().name)}catch(e){toast(e.message)}finally{busy(false)}};
+const doLogout=async()=>{const t=TOKEN;saveTok(null);me=null;lsel=null;pin='';tab='home';close();loaded=false;render();if(t)rpc('logout',{p_token:t}).catch(()=>{});loadPeople()};
+const keyPin=k=>{if(!lsel)return;pinErr=false;if(k==='del')pin=pin.slice(0,-1);else if(k==='ok')return doLogin();else if(pin.length<8)pin+=k;render()};
+const exportXlsx=async()=>{busy(true);try{const D=await rpc('export_all',{p_token:TOKEN});if(!window.XLSX){await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=ok;s.onerror=()=>no(new Error('Не вдалося завантажити модуль Excel'));document.head.appendChild(s)})}
+ const wb=XLSX.utils.book_new();for(const k in D){const rows=(D[k]||[]).map(r=>{const o={};for(const c in r){const v=r[c];o[c]=typeof v==='string'&&/^\d{4}-\d\d-\d\dT/.test(v)?dt(T(v))+'.'+new Date(v).getFullYear():v}return o});XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{'Немає даних':''}]),k.slice(0,31))}
+ XLSX.writeFile(wb,'kontroler-'+dIn(Date.now())+'.xlsx');toast('Файл Excel збережено')}catch(e){toast(e.message)}finally{busy(false)}};
+
+document.addEventListener('click',e=>{const t=e.target;const c=s=>t.closest(s);let b;
+ if(t.id==='ov'||c('[data-close]'))return close();
+ if(b=c('[data-lu]')){lsel=b.dataset.lu;pin='';pinErr=false;render();$('#pinbox')?.scrollIntoView({behavior:'smooth',block:'center'});return}
+ if(b=c('[data-k]'))return keyPin(b.dataset.k);
+ if(b=c('[data-tab]')){tab=b.dataset.tab;close();render();scrollTo(0,0);return}
+ if(b=c('[data-plf]')){plF=b.dataset.plf;render();return}
+ if(b=c('[data-rk]')){rk=b.dataset.rk;render();return}
+ if(b=c('[data-ctl]')){ctlS=b.dataset.ctl;jN=60;render();return}
+ if(b=c('[data-ctlgo]')){ctlS=b.dataset.ctlgo;tab='ctl';render();scrollTo(0,0);return}
+ if(b=c('[data-jf]')){jF=b.dataset.jf;jN=60;render();return}
+ if(c('[data-jmore]')){jN+=60;render();return}
+ if(c('[data-refresh]')){busy(true);load().then(()=>toast('Оновлено')).catch(e=>toast(e.message)).finally(()=>busy(false));return}
+ if(c('[data-export]'))return exportXlsx();
+ if(b=c('[data-tdone]'))return api('task_done',{p_id:+b.dataset.tdone},'Завдання виконано, адміністратор побачить це в журналі');
+ if(b=c('[data-tdel]'))return api('task_cancel',{p_id:+b.dataset.tdel},'Завдання скасовано');
+ if(c('[data-nread]'))return api('notif_read');
+ if(b=c('[data-subok]'))return api('swap_answer',{p_id:+b.dataset.subok,p_ok:true},'Домовлено. Адміністратор отримає сповіщення');
+ if(b=c('[data-subno]'))return api('swap_answer',{p_id:+b.dataset.subno,p_ok:false},'Відповідь надіслано');
+ if(c('[data-loff]'))return api('outage_start',{},'Записано: зникло світло');
+ if(c('[data-lon]'))return api('outage_end',{},'Записано: світло з\'явилося');
+ if(c('[data-lman]'))return formOut();
+ if(c('[data-myreq]'))return formReq();
+ if(b=c('[data-gdel]')){if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Натисніть ще раз, щоб видалити';return}return api('goal_del',{p_id:+b.dataset.gdel},'Ціль видалено')}
+ if(c('[data-shnew]')&&isAdm())return formShip();
+ if(c('[data-adjnew]')&&isAdm())return formAdj();
+ if(b=c('[data-rf]')){repF=b.dataset.rf;render();return}
+ if(b=c('[data-vp]')){setPre(b.dataset.vp);render();return}
+ if(b=c('[data-stp]')){stP=b.dataset.stp;render();return}
+ if(b=c('[data-wp]')){wP=b.dataset.wp;render();return}
+ if(c('#who'))return menu();
+ if(b=c('[data-menu]'))return menu();
+ if(c('[data-logout]'))return doLogout();
+ if(b=c('[data-pedit]'))return formPerson(b.dataset.pedit);
+ if(c('[data-padd]'))return formPerson(null);
+ if(b=c('[data-st]')){const i=$('#'+b.dataset.st);i.value=Math.max(0,(+i.value||0)+ +b.dataset.dv);return}
+ if(b=c('[data-rack]')){const mode=b.dataset.mode||(tab==='prod'?'prod':'view');return openRack(b.dataset.rack,mode)}
+ if(b=c('[data-box]')){const id=b.dataset.box;if((b.dataset.force||rackMode)==='prod'&&!b.dataset.force){if(!canProd(id[0]))return toast(isW()?'Ви не на зміні в секторі '+id[0]:'Записувати можуть лише працівники на зміні');return formRm(id)}return openBox(id)}
+ if(b=c('[data-np]'))return formP(b.dataset.np);
+ if(b=c('[data-fil]')){const id=b.dataset.fil;api('filament_change',{p_machine:id}).then(ok=>{if(ok){openBox(id);toast(`Філамент на ${id} замінено. На складі: ${FL.stock}`)}});return}
+ if(b=c('[data-assign]'))return formAssign(b.dataset.assign);
+ if(b=c('[data-hand]'))return formHand(b.dataset.hand);
+ if(b=c('[data-cancel]'))return api('handover_cancel',{p_sector:b.dataset.cancel},'Передачу скасовано');
+ if(b=c('[data-acc]'))return accept(b.dataset.acc);
+ if(b=c('[data-take]')){const s=b.dataset.take;if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Натисніть ще раз, щоб забрати сектор '+s;return}close();return api('take_sector',{p_sector:s},'Сектор '+s+' у адміністратора')}
+ if(c('#addst')){const n=Math.floor(+$('#stn').value);if(!n)return toast('Вкажіть кількість');return api('filament_add',{p_n:n,p_note:n>0?'Поповнення':'Коригування'},n>0?`Додано ${n} котушок`:`Списано ${-n} котушок`)}
+ if(c('#setmin')){const n=Math.floor(+$('#fmin').value);if(!(n>=0))return toast('Вкажіть число');return api('setting_set',{p_key:'fil_min',p_val:n},'Мінімум збережено')}
+ if(b=c('button.pi[data-p]'))return formP(null,b.dataset.p);
+});
+document.addEventListener('change',e=>{if(e.target.id==='vf'||e.target.id==='vt'){const v=e.target.value;if(v){const t=+new Date(v+'T00:00');if(e.target.id==='vf')vFrom=t;else vTo=t;if(vTo<vFrom)[vFrom,vTo]=[vTo,vFrom];vPre='';render()}}if(e.target.name==='rt'||e.target.id==='rs')updReq();if(e.target.id==='shsel'){stSel=+e.target.value;render()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close();if(!me&&lsel&&!e.target.closest('input,textarea')){if(/^[0-9]$/.test(e.key))keyPin(e.key);if(e.key==='Backspace')keyPin('del');if(e.key==='Enter')keyPin('ok')}});
+document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target;const val=id=>($('#'+id)?.value||'').trim();
+ if(f.id==='frm'){const id=f.dataset.id,qty=Math.max(0,Math.floor(+$('#rq').value||0)),d={};REASONS.forEach(([k])=>d[k]=Math.max(0,Math.floor(+$('#d_'+k).value||0)));
+  if(!qty&&!sumD(d))return toast('Вкажіть кількість готових або браку');const part=$('#fp').value;
+  if(await api('add_removal',{p_machine:id,p_model:MID[part],p_qty:qty,p_dm:d.mach,p_df:d.fail,p_de:d.err}))
+   {openRack(id.slice(0,4),'prod');toast(`Записано: ${id}, ${part}, ${qty} шт${sumD(d)?`, брак ${sumD(d)}`:''}`)}return}
+ if(f.id==='fpr'){const id=f.dataset.id,pv=f.dataset.pid,status=f.querySelector('[name=ps]:checked').value,fix=val('pf');
+  const ok=pv?await api('problem_update',{p_id:+pv,p_fix:fix,p_status:status}):await api('problem_new',{p_machine:id,p_text:val('pt'),p_fix:fix,p_status:status});
+  if(ok){openBox(id);toast(status==='green'?'Проблему закрито':'Збережено')}return}
+ if(f.id==='fsh'){const part=$('#spp').value,kind=f.querySelector('[name=sk]:checked').value,qty=Math.floor(+$('#sq').value||0);if(!(qty>0))return toast('Вкажіть кількість');
+  if(await api('shipment_add',{p_model:MID[part],p_kind:kind,p_qty:qty,p_note:val('sn')},`Відвантажено ${fmt(qty)} шт ${part}. Списано зі складу`)){close();tab='store';render()}return}
+ if(f.id==='fadj'){const part=$('#ajp').value,kind=f.querySelector('[name=ak]:checked').value,qty=Math.floor(+$('#ajq').value||0);if(!qty)return toast('Вкажіть кількість (мінус — щоб зменшити)');
+  if(await api('stock_adjust_add',{p_model:MID[part],p_kind:kind,p_qty:qty,p_note:val('ajn')||'Інвентаризація'},'Склад скориговано'))close();return}
+ if(f.id==='fasg'){const s=f.dataset.s,w=f.querySelector('[name=aw]:checked')?.value;if(!w)return toast('Виберіть працівника');if(await api('assign_sector',{p_sector:s,p_worker:w},`${u(w).name} на зміні в секторі ${s}`))close();return}
+ if(f.id==='ftask'){const due=$('#tdue').value;const to=$('#tto').value;return api('task_add',{p_to:to==='all'?null:to,p_text:val('ttx'),p_due:due||null},'Завдання надіслано')}
+ if(f.id==='freq'){const type=f.querySelector('[name=rt]:checked').value,date=+$('#rd').value;if(!date)return toast('Немає доступних дат');const date2=type==='swap'?+$('#rd2').value:null;if(type==='swap'&&!date2)return toast('Виберіть зміну колеги');
+  if(await api('swap_request',{p_type:type,p_colleague:$('#rs').value,p_date1:dIn(date),p_date2:date2?dIn(date2):null,p_note:val('rn')},'Надіслано колезі на підтвердження'))formReq();return}
+ if(f.id==='fout'){const a=+new Date($('#of').value),b=+new Date($('#ot').value);if(!a||!b||b<=a)return toast('Перевірте час: «з\'явилося» має бути пізніше');
+  if(await api('outage_add',{p_from:new Date(a).toISOString(),p_to:new Date(b).toISOString()},`Простій ${dur(b-a)} записано`))close();return}
+ if(f.id==='fgoal'){const q=Math.floor(+$('#gq').value),uu=$('#gu').value,ff=$('#gf').value;if(!(q>0)||!uu||!ff)return toast('Заповніть усі поля');const gp=$('#gp').value;
+  return api('goal_add',{p_model:gp==='*'?null:MID[gp],p_qty:q,p_from:ff,p_until:uu},'Ціль поставлено')}
+ if(f.classList.contains('mrow')){const o=parts[+f.dataset.i],nw=f.querySelector('input').value.trim();if(nw===o)return;return api('model_rename',{p_id:MID[o],p_name:nw},`Перейменовано: ${o} → ${nw}`)}
+ if(f.id==='fmadd')return api('model_add',{p_name:val('pn')},'Модель додано');
+ if(f.id==='fap'){const id=f.dataset.id;if(await api('set_machine',{p_machine:id,p_name:val('apn'),p_model:f.querySelector('[name=apt]:checked').value},'Апарат збережено'))openBox(id);return}
+ if(f.id==='fho'){const s=f.dataset.s;if(!$('#co1').checked||!$('#co2').checked)return toast('Підтвердіть обидва пункти');const to=f.querySelector('[name=to]:checked')?.value;if(!to)return toast('Виберіть, кому передати');
+  if(await api('handover_start',{p_sector:s,p_to:to,p_note:val('hn')},`Передано. ${fn(to)} має увійти й підтвердити`))close();return}
+ if(f.id==='fper'){const id=f.dataset.id,role=f.querySelector('[name=pr]:checked').value,grp=role==='worker'?+$('#pg').value:null,name=val('pnm'),pinv=val('ppin');
+  if(!name)return toast('Вкажіть ім\'я');
+  if(!id){if(!(await api('person_add',{p_name:name,p_role:role,p_grp:grp,p_pin:pinv},'Користувача додано')))return}
+  else{if(!(await api('person_update',{p_id:id,p_name:name,p_role:role,p_grp:grp,p_active:$('#pact').checked},'Збережено')))return;if(pinv&&!(await api('person_pin',{p_id:id,p_pin:pinv},'PIN змінено')))return}
+  close();return}
+ if(f.id==='fset'){const a=$('#ranc').value;if(!a)return toast('Вкажіть дату');return api('setting_set',{p_key:'rotation_anchor',p_val:a},'Графік збережено')}
+ if(f.id==='fmypin'){if(await api('change_my_pin',{p_old:val('op'),p_new:val('np')},'PIN змінено'))close();return}
+});
+setInterval(()=>{if(TOKEN&&me&&$('#ov').hidden&&!document.hidden&&!document.activeElement?.closest?.('input,textarea,select'))load().catch(()=>{})},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&TOKEN&&me)load().catch(()=>{})});
+if(CFG.url.startsWith('__')){$('#main').innerHTML='<div class="card"><h2>Програму ще не підключено до бази</h2><p>Вставте адресу та ключ Supabase у файл index.html (рядок CFG).</p></div>'}
+else if(TOKEN){busy(true);load().catch(e=>{toast(e.message);if(!me){saveTok(null);loadPeople()}}).finally(()=>busy(false))}else loadPeople();
+
+}
+</script>
+</body>
+</html>
